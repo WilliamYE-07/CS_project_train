@@ -1,8 +1,13 @@
+import 'dart:collection';
+
 import 'package:cs_project_train/SearchedRoom.dart';
 import 'package:cs_project_train/seating_screen.dart';
 import 'package:flutter/material.dart';
 import 'CreateNew.dart';
 import 'DIY.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'authentication.dart';
+
 
 class SelfDesign extends StatefulWidget {
   const SelfDesign({super.key, required this.title});
@@ -14,6 +19,8 @@ class SelfDesign extends StatefulWidget {
 }
 
 class _DesignState extends State<SelfDesign> {
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  AuthenticationHelper Auth = AuthenticationHelper();
   int _counter = 0;
   List<Widget> rooms = [];
   void _incrementCounter() {
@@ -21,6 +28,31 @@ class _DesignState extends State<SelfDesign> {
       _counter = _counter + 2;
     });
   }
+
+  _DesignState() {
+    refreshRooms();
+  }
+
+
+  void refreshRooms() {
+    db.collection("users").doc(AuthenticationHelper().uid).collection("SelfDesignRoom").get().then((querySnapshot) {
+      List<Widget> temprooms = [];
+      for (var i in querySnapshot.docs) {
+        i.data();
+
+        setState(() {
+          temprooms.add(selfDesignRoom(i.data()["groupname"], i.data()["members"][0], i.data()["number of members"] ));
+          print("hello");
+        });
+        print(i.data()["groupname"]);
+        print(i.data()["number of members"]);
+        print(i.data()["members"]);
+      }
+      rooms = temprooms;
+    });
+
+  }
+
 
   void goDIY() {
     Navigator.push(
@@ -30,9 +62,16 @@ class _DesignState extends State<SelfDesign> {
     );
   }
   void AddRoom() {
+    Map<String, Object> newRoom = new HashMap<String, Object>();
+    newRoom["groupname"] = "name";//.("groupname","name");
+    newRoom["code"] = "10086";
+    newRoom["members"] = ["Jack", "William"];
+    newRoom["number of members"] = "14";
+    FirebaseFirestore.instance.collection("users").doc(AuthenticationHelper().uid).collection("SelfDesignRoom").doc("newRoom1").set(newRoom);
+    FirebaseFirestore.instance.collection("rooms").doc(newRoom["code"] as String?).set(newRoom);
     List<Widget> temprooms = rooms;
     setState(() {
-      temprooms.add(selfDesignRoom());
+      //temprooms.add();
       rooms = temprooms;
       print("hello");
     });
@@ -77,6 +116,7 @@ class _DesignState extends State<SelfDesign> {
 
   @override
   Widget build(BuildContext context) {
+
     UpdateLV();
     print(rooms);
     return Scaffold(

@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cs_project_train/SearchedRoom.dart';
+import 'package:cs_project_train/authentication.dart';
 import 'package:cs_project_train/seating_screen.dart';
 import 'package:flutter/material.dart';
-
+import 'package:cs_project_train/CreateNew.dart';
 class SelectTrain extends StatefulWidget {
   const SelectTrain({super.key, required this.title});
 
@@ -13,7 +15,7 @@ class SelectTrain extends StatefulWidget {
 
 class _SelectTState extends State<SelectTrain> {
   int _counter = 0;
-
+  List<Widget>Rooms = [];
   void _incrementCounter() {
     setState(() {
       _counter = _counter + 2;
@@ -22,6 +24,25 @@ class _SelectTState extends State<SelectTrain> {
 
   void TrainButton() {
     print("Hello, World!");
+  }
+
+  void refreshRooms() {
+    FirebaseFirestore.instance.collection("Rooms").get().then((querySnapshot) {
+      List<Widget> temprooms = [];
+      for (var i in querySnapshot.docs) {
+        i.data();
+
+        setState(() {
+          temprooms.add(PublicRoom(i.data()["groupname"], i.data()["members"][0], i.data()["number of members"] ));
+          print("hello");
+        });
+        print(i.data()["groupname"]);
+        print(i.data()["number of members"]);
+        print(i.data()["members"]);
+      }
+      Rooms = temprooms;
+    });
+
   }
 
   void SelfDesignButton() {
@@ -78,152 +99,7 @@ class _SelectTState extends State<SelectTrain> {
               height:715,
               width: 300,
               child: ListView(
-                children: [Container(
-                    width: 300,
-                    height: 130,
-                    margin: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 20,
-                            color: Colors.white70
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black,
-                              blurRadius: 20
-                          )
-                        ]
-                    ),
-                    child: Column(children: [
-                      Text(
-                        "G1",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20
-                        ),
-                      ),
-                      Image.network("https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg", width: 30, height: 30,)
-                    ])),Container(
-                    width: 300,
-                    height: 130,
-                    margin: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 20,
-                            color: Colors.white70
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black,
-                              blurRadius: 20
-                          )
-                        ]
-                    ),
-                    child: Column(children: [
-                      Text(
-                        "G1",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20
-                        ),
-                      ),
-                      Image.network("https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg", width: 30, height: 30,)
-                    ])),Container(
-                    width: 300,
-                    height: 130,
-                    margin: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 20,
-                            color: Colors.white70
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black,
-                              blurRadius: 20
-                          )
-                        ]
-                    ),
-                    child: Column(children: [
-                      Text(
-                        "G1",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20
-                        ),
-                      ),
-                      Image.network("https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg", width: 30, height: 30,)
-                    ])),Container(
-                    width: 300,
-                    height: 130,
-                    margin: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 20,
-                            color: Colors.white70
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black,
-                              blurRadius: 20
-                          )
-                        ]
-                    ),
-                    child: Column(children: [
-                      Text(
-                        "G1",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20
-                        ),
-                      ),
-                      Image.network("https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg", width: 30, height: 30,)
-                    ])),Container(
-                    width: 300,
-                    height: 130,
-                    margin: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 20,
-                            color: Colors.white70
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black,
-                              blurRadius: 20
-                          )
-                        ]
-                    ),
-                    child: Column(children: [
-                      Text(
-                        "G1",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20
-                        ),
-                      ),
-                      Image.network("https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg", width: 30, height: 30,)
-                    ]))]
+                children: Rooms,
               ),
             ),
           ],

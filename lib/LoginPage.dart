@@ -1,6 +1,8 @@
+import 'package:cs_project_train/SignUp.dart';
 import 'package:cs_project_train/seating_screen.dart';
 import 'package:flutter/material.dart';
 import 'HomeScreen.dart';
+import 'authentication.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, required this.title});
@@ -14,6 +16,7 @@ class LoginPage extends StatefulWidget {
 class _LoginState extends State<LoginPage> {
   int _counter = 0;
   String username = "";
+  String password = "";
   void _incrementCounter() {
     setState(() {
       _counter = _counter + 2;
@@ -22,10 +25,25 @@ class _LoginState extends State<LoginPage> {
 
   void login() {
     print("you are logged in!");
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => HomeScreen(title: "Hello, $username")),
-    );
+    AuthenticationHelper()
+        .signIn(email: username, password: password!)
+        .then((result) {
+      if (result == null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen(title: "Hello, $username")),
+        );
+      }
+      else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            result,
+            style: TextStyle(fontSize: 16),
+          ),
+        ));
+      }
+    });
+
 
   }
 
@@ -74,11 +92,17 @@ class _LoginState extends State<LoginPage> {
 
               ),
               onChanged: (String newEntry) {
+                password = newEntry;
                 print(newEntry);
               },
             ),
             ElevatedButton(onPressed: login, child: Text("Continue")),
-
+            TextButton(onPressed: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SignUp(title: "Hello, $username")),
+              );
+            }, child: Text("sign up"))
           ]
         )
       )
