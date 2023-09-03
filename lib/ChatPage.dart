@@ -1,4 +1,4 @@
-import 'package:cs_project_train/SearchedRoom.dart';
+  import 'package:cs_project_train/SearchedRoom.dart';
 import 'package:cs_project_train/seating_screen.dart';
 import 'package:flutter/material.dart';
 import 'CreateNew.dart';

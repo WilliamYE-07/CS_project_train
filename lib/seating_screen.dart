@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SeatingPage extends StatefulWidget {
-  const SeatingPage({super.key, required this.title});
-
+  const SeatingPage(this.title, this.id);
+  final String id;
   final String title;
 
   @override

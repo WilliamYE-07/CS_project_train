@@ -27,13 +27,15 @@ class _SelectTState extends State<SelectTrain> {
   }
 
   void refreshRooms() {
-    FirebaseFirestore.instance.collection("Rooms").get().then((querySnapshot) {
+    FirebaseFirestore.instance.collection("rooms").get().then((querySnapshot) {
       List<Widget> temprooms = [];
+      print("hello");
+
       for (var i in querySnapshot.docs) {
         i.data();
 
         setState(() {
-          temprooms.add(PublicRoom(i.data()["groupname"], i.data()["members"][0], i.data()["number of members"] ));
+          temprooms.add(PublicRoom(i.data()["groupname"], i.data()["members"][0], i.data()["number of members"], i.id));
           print("hello");
         });
         print(i.data()["groupname"]);
@@ -45,6 +47,14 @@ class _SelectTState extends State<SelectTrain> {
 
   }
 
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  AuthenticationHelper Auth = AuthenticationHelper();
+
+  Future<QuerySnapshot<Map<String, dynamic>>> fetchData() {
+    return db.collection("rooms").get();
+  }
+
+
   void SelfDesignButton() {
     print("Hello, World!");
   }
@@ -53,13 +63,7 @@ class _SelectTState extends State<SelectTrain> {
     print("Hello, World!");
   }
 
-  void Nextpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SeatingPage(title: "Seating Page")),
-    );
-  }
+
 
   void SearchRoom() {
     print("search result");
@@ -95,12 +99,44 @@ class _SelectTState extends State<SelectTrain> {
                 print(newEntry);
               },
             ),
-            Container(
-              height:715,
-              width: 300,
-              child: ListView(
-                children: Rooms,
-              ),
+            FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                future: fetchData(), // Call your fetchData function here
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                        child:
+                        CircularProgressIndicator()); // Display a loading indicator while waiting for data
+                  } else if (snapshot.hasError) {
+                    return Center(
+                        child: Text(
+                            'Error fetching data')); // Display an error message if data fetching fails
+                  } else if (!snapshot.hasData) {
+                    return Center(
+                        child: Text(
+                            'No data available')); // Display a message if no data is available
+                  } else {
+                    List<Widget> temprooms = [];
+                    for (var i in snapshot.data!.docs) {
+                      i.data();
+
+                      temprooms.add(PublicRoom(
+                          i.data()["groupname"], i.data()["members"][0],
+                          i.data()["number of members"], i.id));
+                    }
+                    Rooms = temprooms;
+
+                    return Container(
+                            height: 715,
+                            width: 500,
+                            child: ListView(
+                                children: Rooms
+
+
+
+                      ),
+                    );
+                  }
+                }
             ),
           ],
         ),

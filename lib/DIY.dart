@@ -1,4 +1,5 @@
 import 'package:cs_project_train/SearchedRoom.dart';
+import 'package:cs_project_train/questionare.dart';
 import 'package:cs_project_train/seating_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -66,12 +67,12 @@ class _DIYState extends State<DIY> {
         child: Align(
           alignment: Alignment.topCenter,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 width: 360,
-                height: 650,
+                height: 500,
                 color: Colors.green,
                 child: Table(
                   border: TableBorder.all(), // Add border to the table cells
@@ -83,7 +84,8 @@ class _DIYState extends State<DIY> {
                             width: 50,
                             child: DragTarget<String>(
                               builder: (BuildContext context, List<String?> candidateData, List<dynamic> rejectedData) {
-
+                                print(candidateData);
+                                print(rejectedData);
                                 return Container(
                                   width: 100,
                                   height: 100,
@@ -148,19 +150,19 @@ class _DIYState extends State<DIY> {
                             height: 50,
                             width: 50,
                             child: DragTarget<String>(
-                              builder: (BuildContext context, List<String?> candidateData, List<dynamic> rejectedData) {
-                                return Container(
+                              builder: (BuildContext context, List<String?> candidates, List<dynamic> rejectedData) {
+                                return candidates.length > 0
+                                ? Container(
                                   width: 100,
                                   height: 100,
-                                  color: candidateData.isEmpty ? Colors.grey : Colors.green,
-                                  child: Center(child: Text('Drop Here')),
+                                  color: Colors.green,
+                                  child: Center(child: Text('Drop Here')) )
+                                : Container(
+                                width: 100,
+                                height: 100,
+                                    color: Colors.grey,
+                                    child: Center(child: Text('Drop Here')),
                                 );
-                              },
-                              onWillAccept: (data) {
-                                setState(() {
-                                  isDragOver = true;
-                                });
-                                return true;
                               },
                               onAccept: (data) {
                                 // Handle the dropped data here.
@@ -198,7 +200,27 @@ class _DIYState extends State<DIY> {
                       child: Center(child: Text('Dragging...')),
                     ),
                   ),
-              )
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(onPressed: () {
+                    setState(() {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Questionnaire'),
+                            content: QuestionnaireForm("10"), // Display the form here
+                          );
+                        },
+                      );
+                    });
+                  }, child: Text("Save")),
+                  ElevatedButton(onPressed: () {}, child: Text("Formats")),
+                ],
+              ),
+
             ],
           ),
         ),

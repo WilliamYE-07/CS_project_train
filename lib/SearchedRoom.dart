@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cs_project_train/seating_screen.dart';
 import 'package:flutter/material.dart';
+
+import 'authentication.dart';
 
 class SearchedRoom extends StatefulWidget {
   const SearchedRoom({super.key, required this.title});
@@ -18,6 +21,7 @@ class _SearchedState extends State<SearchedRoom> {
       _counter = _counter + 2;
     });
   }
+
 
   void Nextpage() {
     Navigator.push(
