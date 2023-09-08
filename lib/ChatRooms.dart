@@ -34,13 +34,7 @@ class _ChatState extends State<ChatRooms> {
     );
   }
 
-  void Nextpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SeatingPage(title: "Seating Page")),
-    );
-  }
+
 
   void SearchRoom() {
     print("search result");

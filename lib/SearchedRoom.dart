@@ -23,13 +23,7 @@ class _SearchedState extends State<SearchedRoom> {
   }
 
 
-  void Nextpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SeatingPage(title: "Seating Page")),
-    );
-  }
+
 
 
   @override

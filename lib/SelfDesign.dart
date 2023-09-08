@@ -97,13 +97,6 @@ class _DesignState extends State<SelfDesign> {
     print("Hello, World!");
   }
 
-  void Nextpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SeatingPage(title: "Seating Page")),
-    );
-  }
 
   void UpdateLV() {
     setState(() {

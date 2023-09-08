@@ -14,6 +14,10 @@ class DIY extends StatefulWidget {
 
 class _DIYState extends State<DIY> {
   int _counter = 0;
+  Map<String, List<int>> seatingChart = {}; //Make 2d array and convert it
+  //extend the table cell class to include an index
+
+
 
   void _incrementCounter() {
     setState(() {
@@ -33,13 +37,7 @@ class _DIYState extends State<DIY> {
     print("Hello, World!");
   }
 
-  void Nextpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SeatingPage(title: "Seating Page")),
-    );
-  }
+
 
 
   void SearchRoom() {
@@ -110,6 +108,7 @@ class _DIYState extends State<DIY> {
                               },
                             ),
                           )),
+
                         ]
                     ),
                     TableRow(

@@ -63,8 +63,6 @@ class _SelectTState extends State<SelectTrain> {
     print("Hello, World!");
   }
 
-
-
   void SearchRoom() {
     print("search result");
     Navigator.push(

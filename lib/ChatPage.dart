@@ -33,13 +33,7 @@ class _ChatPageState extends State<ChatPage> {
     print("Hello, World!");
   }
 
-  void Nextpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SeatingPage(title: "Seating Page")),
-    );
-  }
+
 
   void SearchRoom() {
     print("search result");

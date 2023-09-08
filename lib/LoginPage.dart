@@ -52,7 +52,7 @@ class _LoginState extends State<LoginPage> {
   void Nextpage() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SeatingPage(title: "Seating Page")),
+      MaterialPageRoute(builder: (context) => SeatingPage("Seating Page", "1234")),
     );
   }
   @override

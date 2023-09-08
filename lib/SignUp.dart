@@ -52,12 +52,7 @@ class _SignUpState extends State<SignUp> {
 
 
 
-  void Nextpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SeatingPage(title: "Seating Page")),
-    );
-  }
+
   @override
   Widget build(BuildContext context) {
 

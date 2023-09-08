@@ -53,7 +53,7 @@ class _HomeState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => SeatingPage(title: "Seating Page")),
+          builder: (context) => SeatingPage("Seating Page", "1234")),
     );
   }
 
