@@ -1,8 +1,8 @@
-import 'package:cs_project_train/SearchedRoom.dart';
-import 'package:cs_project_train/SelectTrain.dart';
-import 'package:cs_project_train/seating_screen.dart';
+import 'package:cs_project_train/Room/SearchedRoom.dart';
+import 'package:cs_project_train/Room/SelectTrain.dart';
+import 'package:cs_project_train/Room/seating_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:cs_project_train/SelfDesign.dart';
+import 'package:cs_project_train/SelfDesign/SelfDesign.dart';
 import 'package:cs_project_train/ChatRooms.dart';
 import 'ChatPage.dart';
 

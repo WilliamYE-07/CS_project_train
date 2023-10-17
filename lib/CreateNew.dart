@@ -1,6 +1,6 @@
-import 'package:cs_project_train/seating_screen.dart';
+import 'package:cs_project_train/Room/seating_screen.dart';
 import 'package:flutter/material.dart';
-import 'DIY.dart';
+import 'SelfDesign/DIY.dart';
 
 class selfDesignRoom extends StatelessWidget {
   String groupname = '';
