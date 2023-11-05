@@ -24,6 +24,7 @@ class _SignUpState extends State<SignUp> {
       _counter = _counter + 2;
     });
   }
+  final db = FirebaseFirestore.instance;
 
   void login() {
     print("you are logged in!");
@@ -31,8 +32,16 @@ class _SignUpState extends State<SignUp> {
         .signUp(email: username, password: password!)
         .then((result) {
       if (result == null) {
+
+
         Map<String, Object> data = new HashMap<String, Object>() as Map<String, Object>;
+        data = {
+          "email" :username,
+          "name" :username,
+          "uid": AuthenticationHelper().uid
+        };
         FirebaseFirestore.instance.collection("users").doc(AuthenticationHelper().uid).set(data);
+
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen(title: "Hello, $username")),

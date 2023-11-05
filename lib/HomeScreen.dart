@@ -3,7 +3,10 @@ import 'package:cs_project_train/Room/SelectTrain.dart';
 import 'package:cs_project_train/Room/seating_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cs_project_train/SelfDesign/SelfDesign.dart';
-import 'package:cs_project_train/ChatRooms.dart';
+import 'package:cs_project_train/chats/ChatRooms.dart';
+
+import 'chats/chat_selector.dart';
+import 'form.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -45,7 +48,7 @@ class _HomeState extends State<HomeScreen> {
     print("Hello, World!");
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ChatRooms(title: '',)),
+      MaterialPageRoute(builder: (context) => ChatSelector()),
     );
   }
 
@@ -72,6 +75,15 @@ class _HomeState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: [
+          IconButton(onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => PersonalInfoSelection()),
+            );
+          }, icon: Icon(Icons.person))
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8),

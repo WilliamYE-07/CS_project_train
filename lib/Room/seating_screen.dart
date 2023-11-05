@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cs_project_train/Login/authentication.dart';
 import 'package:flutter/material.dart';
 
 class SeatingPage extends StatefulWidget {
@@ -16,6 +17,7 @@ class _SeatingState extends State<SeatingPage> {
   String roomCode = "";
   Map<String, List<int>> seatingChart = {};
   FirebaseFirestore db = FirebaseFirestore.instance;
+  Widget reccomendedSeats = Text("Example");
 
   _SeatingState(this.roomCode) {
     db.collection("rooms").doc(roomCode).get().then((value) {
@@ -23,6 +25,18 @@ class _SeatingState extends State<SeatingPage> {
         for (int x = 0; x < 3; x++) {
           seatingChart[i]?[x] = value.data()?["SeatingChart"][i][x] as int;
         }
+      }
+    });
+    db.collection("rooms").doc(roomCode).collection("members").get().then((value) {
+
+      for (var i in value.docs) {
+        i["SeatNumber"];
+        i.id;
+        db.collection("users").doc(i.id);
+
+
+
+
       }
     });
   }
@@ -41,25 +55,57 @@ class _SeatingState extends State<SeatingPage> {
     return db.collection("rooms").doc(roomCode).get();
   }
 
+  Map<String, Map<String, dynamic>> chooseRow(AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot, String row, List<int> adjSeat) {
+    Map<String, Map<String, dynamic>> seatingChartDictionary = {};
+
+    if (row == "Row1") {
+      seatingChartDictionary["SeatingChart"] = {
+        "Row1": adjSeat,
+        "Row2": snapshot.data!["SeatingChart"]["Row2"],
+        "Row3": snapshot.data!["SeatingChart"]["Row3"]
+      };
+    }
+    if (row == "Row2") {
+      seatingChartDictionary["SeatingChart"] = {
+        "Row1": snapshot.data!["SeatingChart"]["Row1"],
+        "Row2": adjSeat,
+        "Row3": snapshot.data!["SeatingChart"]["Row3"]
+      };
+    }
+    if (row == "Row3") {
+      seatingChartDictionary["SeatingChart"] = {
+        "Row1": snapshot.data!["SeatingChart"]["Row1"],
+        "Row2": snapshot.data!["SeatingChart"]["Row2"],
+        "Row3": adjSeat
+      };
+    }
+    return seatingChartDictionary;
+  }
+
+
   Widget setTable(AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot, int seatNum, List<int> adjSeat, String row) {
     int seatCode = snapshot.data!["SeatingChart"][row][seatNum];
+
     if (seatCode == 1) {
+      Map<String, Map<String, dynamic>> seatingChartDictionary = chooseRow(snapshot, row, adjSeat);
+
       return ElevatedButton(
           onPressed: () {
             setState(() {
-              int seat1 =
-              snapshot.data!["SeatingChart"][row][adjSeat[0]];
-              int seat2 =
-              snapshot.data!["SeatingChart"][row][adjSeat[1]];
               db
               .collection("rooms")
               .doc(roomCode)
               .update({
-                "SeatingChart": {
-                  "Row1": {2, seat1, seat2},
-                  "Row2": snapshot.data!["SeatingChart"]["Row2"],
-                  "Row3": snapshot.data!["SeatingChart"]["Row3"]
-                }
+                "SeatingChart": seatingChartDictionary["SeatingChart"]
+              });
+
+              db
+                  .collection("rooms")
+                  .doc(roomCode)
+                  .collection("members")
+                  .doc(AuthenticationHelper().uid)
+                  .set({
+                    "SeatNumber" : [row, seatNum]
               });
             });
           },
@@ -113,250 +159,39 @@ class _SeatingState extends State<SeatingPage> {
                         TableRow(children: [
                         TableCell(
                         child: Container(
-                        child: setTable(snapshot, 0, [1,2],"Row1"))),
+                        child: setTable(snapshot, 0, [2,  snapshot.data!["SeatingChart"]["Row1"][1], snapshot.data!["SeatingChart"]["Row1"][2]],"Row1"))),
                         TableCell(
-                            child: Container(
-                                child: snapshot.data!["SeatingChart"]["Row1"]
-                                [1] ==
-                                    1
-                                    ? ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        int seat1 =
-                                        snapshot.data!["SeatingChart"]
-                                        ["Row1"][0];
-                                        int seat2 =
-                                        snapshot.data!["SeatingChart"]
-                                        ["Row1"][2];
-                                        db
-                                            .collection("rooms")
-                                            .doc(roomCode)
-                                            .update({
-                                          "SeatingChart": {
-                                            "Row1": {seat1, 2, seat2},
-                                            "Row2": snapshot
-                                                .data!["SeatingChart"]
-                                            ["Row2"],
-                                            "Row3": snapshot
-                                                .data!["SeatingChart"]
-                                            ["Row3"]
-                                          }
-                                        });
-                                      });
-                                    },
-                                    child: Text("Take Seat!"))
-                                    : snapshot.data!["SeatingChart"]["Row1"]
-                                [1] ==
-                                    2
-                                    ? Text("Seat Taken")
-                                    : Text("No Seat"))),
+                        child: Container(
+                        child: setTable(snapshot, 1, [snapshot.data!["SeatingChart"]["Row1"][0],  2, snapshot.data!["SeatingChart"]["Row1"][2]],"Row1"))),
                         TableCell(
-                            child: Container(
-                                child: snapshot.data!["SeatingChart"]["Row1"]
-                                [2] ==
-                                    1
-                                    ? ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        int seat1 =
-                                        snapshot.data!["SeatingChart"]
-                                        ["Row1"][0];
-                                        int seat2 =
-                                        snapshot.data!["SeatingChart"]
-                                        ["Row1"][1];
-                                        db
-                                            .collection("rooms")
-                                            .doc(roomCode)
-                                            .update({
-                                          "SeatingChart": {
-                                            "Row1": {seat1, seat2, 2},
-                                            "Row2": snapshot
-                                                .data!["SeatingChart"]
-                                            ["Row2"],
-                                            "Row3": snapshot
-                                                .data!["SeatingChart"]
-                                            ["Row3"]
-                                          }
-                                        });
-                                      });
-                                    },
-                                    child: Text("Take Seat!"))
-                                    : snapshot.data!["SeatingChart"]["Row1"]
-                                [2] ==
-                                    2
-                                    ? Text("Seat Taken")
-                                    : Text("No Seat"))),
+                        child: Container(
+                        child: setTable(snapshot, 2, [snapshot.data!["SeatingChart"]["Row1"][0], snapshot.data!["SeatingChart"]["Row1"][1],2],"Row1"))),
+
                       ]),
-                TableRow(children: [
-                TableCell(
-                child: snapshot.data!["SeatingChart"]["Row2"][0] ==
-                1
-                ? ElevatedButton(
-                onPressed: () {
-                setState(() {
-                int seat1 = snapshot
-                    .data!["SeatingChart"]["Row2"][1];
-                int seat2 = snapshot
-                    .data!["SeatingChart"]["Row2"][2];
-                db
-                    .collection("rooms")
-                    .doc(roomCode)
-                    .update({
-                "SeatingChart": {
-                "Row1": snapshot.data!["SeatingChart"]["Row1"],
-                "Row2": {2, seat1, seat2},
-                "Row3": snapshot.data!["SeatingChart"]["Row3"]
-                }
-                });
-                });
-                },
-                child: Text("Take Seat!"))
-                    : snapshot.data!["SeatingChart"]["Row2"][0] == 2
-                ? Text("Seat Taken")
-                    : Text("No Seat")),
-                TableCell(
-                child: snapshot.data!["SeatingChart"]["Row2"][1] ==
-                1
-                ? ElevatedButton(
-                onPressed: () {
-                setState(() {
-                int seat1 = snapshot
-                    .data!["SeatingChart"]["Row2"][0];
-                int seat2 = snapshot
-                    .data!["SeatingChart"]["Row2"][2];
-                db
-                    .collection("rooms")
-                    .doc(roomCode)
-                    .update({
-                "SeatingChart": {
-                "Row1": snapshot
-                    .data!["SeatingChart"]["Row1"],
-                "Row2": {seat1, 2, seat2},
-                "Row3": snapshot
-                    .data!["SeatingChart"]["Row3"]
-                }
-                });
-                });
-                },
-                child: Text("Take Seat!"))
-                    : snapshot.data!["SeatingChart"]["Row2"][1] == 2
-                ? Text("Seat Taken")
-                    : Text("No Seat")),
-                TableCell(
-                child: snapshot.data!["SeatingChart"]["Row2"][2] ==
-                1
-                ? ElevatedButton(
-                onPressed: () {
-                setState(() {
-                int seat1 = snapshot
-                    .data!["SeatingChart"]["Row2"][1];
-                int seat2 = snapshot
-                    .data!["SeatingChart"]["Row2"][2];
-                db
-                    .collection("rooms")
-                    .doc(roomCode)
-                    .update({
-                "SeatingChart": {
-                "Row1": snapshot
-                    .data!["SeatingChart"]["Row1"],
-                "Row2": {seat1, seat2, 2},
-                "Row3": snapshot
-                    .data!["SeatingChart"]["Row3"]
-                }
-                });
-                });
-                },
-                child: Text("Take Seat!"))
-                    : snapshot.data!["SeatingChart"]["Row2"][2] == 2
-                ? Text("Seat Taken")
-                    : Text("No Seat")),
-                ]),
-                TableRow(children: [
-                TableCell(
-                child: snapshot.data!["SeatingChart"]["Row3"][0] ==
-                1
-                ? ElevatedButton(
-                onPressed: () {
-                setState(() {
-                int seat1 = snapshot
-                    .data!["SeatingChart"]["Row3"][1];
-                int seat2 = snapshot
-                    .data!["SeatingChart"]["Row3"][2];
-                db
-                    .collection("rooms")
-                    .doc(roomCode)
-                    .update({
-                "SeatingChart": {
-                "Row1": snapshot
-                    .data!["SeatingChart"]["Row1"],
-                "Row2": snapshot
-                    .data!["SeatingChart"]["Row2"],
-                "Row3": {2, seat1, seat2},
-                }
-                });
-                });
-                },
-                child: Text("Take Seat!"))
-                    : snapshot.data!["SeatingChart"]["Row3"][0] == 2
-                ? Text("Seat Taken")
-                    : Text("No Seat")),
-                TableCell(
-                child: snapshot.data!["SeatingChart"]["Row3"][1] ==
-                1
-                ? ElevatedButton(
-                onPressed: () {
-                setState(() {
-                int seat1 = snapshot
-                    .data!["SeatingChart"]["Row3"][0];
-                int seat2 = snapshot
-                    .data!["SeatingChart"]["Row3"][0];
-                db
-                    .collection("rooms")
-                    .doc(roomCode)
-                    .update({
-                "SeatingChart": {
-                "Row1": snapshot
-                    .data!["SeatingChart"]["Row1"],
-                "Row2": snapshot
-                    .data!["SeatingChart"]["Row2"],
-                "Row3": {seat1, 2, seat2},
-                }
-                });
-                });
-                },
-                child: Text("Take Seat!"))
-                    : snapshot.data!["SeatingChart"]["Row3"][1] == 2
-                ? Text("Seat Taken")
-                    : Text("No Seat")),
-                TableCell(
-                child: snapshot.data!["SeatingChart"]["Row3"][2] ==
-                1
-                ? ElevatedButton(
-                onPressed: () {
-                setState(() {
-                int seat1 = snapshot
-                    .data!["SeatingChart"]["Row3"][0];
-                int seat2 = snapshot
-                    .data!["SeatingChart"]["Row3"][1];
-                db
-                    .collection("rooms")
-                    .doc(roomCode)
-                    .update({
-                "SeatingChart": {
-                "Row1": snapshot
-                    .data!["SeatingChart"]["Row3"],
-                "Row2": snapshot
-                    .data!["SeatingChart"]["Row2"],
-                "Row3": {seat1, seat2, 2},
-                }
-                });
-                });
-                },
-                child: Text("Take Seat!"))
-                    : snapshot.data!["SeatingChart"]["Row3"][2] == 2
-                ? Text("Seat Taken")
-                    : Text("No Seat")),
-                ]),
+                        TableRow(children: [
+                          TableCell(
+                              child: Container(
+                                  child: setTable(snapshot, 0, [2,  snapshot.data!["SeatingChart"]["Row2"][1], snapshot.data!["SeatingChart"]["Row2"][2]],"Row2"))),
+                          TableCell(
+                              child: Container(
+                                  child: setTable(snapshot, 1, [snapshot.data!["SeatingChart"]["Row2"][0],  2, snapshot.data!["SeatingChart"]["Row2"][2]],"Row2"))),
+                          TableCell(
+                              child: Container(
+                                  child: setTable(snapshot, 2, [snapshot.data!["SeatingChart"]["Row2"][0], snapshot.data!["SeatingChart"]["Row2"][1],2],"Row2"))),
+
+                        ]),
+                        TableRow(children: [
+                          TableCell(
+                              child: Container(
+                                  child: setTable(snapshot, 0, [2,  snapshot.data!["SeatingChart"]["Row3"][1], snapshot.data!["SeatingChart"]["Row3"][2]],"Row3"))),
+                          TableCell(
+                              child: Container(
+                                  child: setTable(snapshot, 1, [snapshot.data!["SeatingChart"]["Row3"][0],  2, snapshot.data!["SeatingChart"]["Row3"][2]],"Row3"))),
+                          TableCell(
+                              child: Container(
+                                  child: setTable(snapshot, 2, [snapshot.data!["SeatingChart"]["Row3"][0], snapshot.data!["SeatingChart"]["Row3"][1],2],"Row3"))),
+
+                        ]),
                 ],
                 );
                 }
