@@ -10,9 +10,7 @@ import '../Login/authentication.dart';
 
 
 class SelfDesign extends StatefulWidget {
-  const SelfDesign({super.key, required this.title});
-
-  final String title;
+  const SelfDesign({super.key});
 
   @override
   State<SelfDesign> createState() => _DesignState();
@@ -20,14 +18,7 @@ class SelfDesign extends StatefulWidget {
 
 class _DesignState extends State<SelfDesign> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-  int _counter = 0;
   List<Widget> rooms = [];
-
-  void _incrementCounter() {
-    setState(() {
-      _counter = _counter + 2;
-    });
-  }
 
   _DesignState() {
     refreshRooms();
@@ -122,7 +113,7 @@ class _DesignState extends State<SelfDesign> {
             .of(context)
             .colorScheme
             .inversePrimary,
-        title: Text(widget.title),
+        title: Text("Design Your Room"),
       ),
 
       body: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(

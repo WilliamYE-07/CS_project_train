@@ -2,7 +2,7 @@ import 'package:cs_project_train/Login/signup.dart';
 import 'package:cs_project_train/Room/seating_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../HomeScreen.dart';
+import '../home.dart';
 import 'authentication.dart';
 
 class LoginPage extends StatefulWidget {
@@ -35,12 +35,6 @@ class _LoginState extends State<LoginPage> {
     });
   }
 
-  void Nextpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SeatingPage("Seating Page", "1234")),
-    );
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +72,10 @@ class _LoginState extends State<LoginPage> {
                 });
               },
             ),
-            ElevatedButton(onPressed: login, child: Text("Continue")),
+            ElevatedButton(
+                onPressed: login,
+                child: Text("Continue")
+            ),
             TextButton(onPressed: (){
               Navigator.push(
                 context,

@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cs_project_train/Room/seating_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../HomeScreen.dart';
+import '../home.dart';
 import 'authentication.dart';
 
 class SignUp extends StatefulWidget {

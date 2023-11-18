@@ -1,5 +1,5 @@
 import 'package:cs_project_train/Room/SearchedRoom.dart';
-import 'package:cs_project_train/Room/SelectTrain.dart';
+import 'package:cs_project_train/Room/select_train.dart';
 import 'package:cs_project_train/Room/seating_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cs_project_train/SelfDesign/SelfDesign.dart';
