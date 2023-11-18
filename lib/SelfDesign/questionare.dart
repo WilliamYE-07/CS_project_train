@@ -92,7 +92,7 @@ class QuestionnaireForm extends StatelessWidget {
                     newRoom["members"] = members.split(" ");
                     newRoom["description"] = Description;
                     newRoom["SeatingChart"] = seatingChart;
-                    FirebaseFirestore.instance.collection("users").doc(AuthenticationHelper().uid).collection("SelfDesignRoom").doc(newRoom["groupname"] as String?).set(newRoom);
+                    FirebaseFirestore.instance.collection("users").doc(getUID()).collection("SelfDesignRoom").doc(newRoom["groupname"] as String?).set(newRoom);
                     FirebaseFirestore.instance.collection("rooms").doc(newRoom["code"] as String?).set(newRoom);
 
 

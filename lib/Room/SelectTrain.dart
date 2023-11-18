@@ -48,7 +48,6 @@ class _SelectTState extends State<SelectTrain> {
   }
 
   FirebaseFirestore db = FirebaseFirestore.instance;
-  AuthenticationHelper Auth = AuthenticationHelper();
 
   Future<QuerySnapshot<Map<String, dynamic>>> fetchData() {
     return db.collection("rooms").get();

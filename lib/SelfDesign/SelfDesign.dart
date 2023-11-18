@@ -20,7 +20,6 @@ class SelfDesign extends StatefulWidget {
 
 class _DesignState extends State<SelfDesign> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-  AuthenticationHelper Auth = AuthenticationHelper();
   int _counter = 0;
   List<Widget> rooms = [];
 
@@ -36,7 +35,7 @@ class _DesignState extends State<SelfDesign> {
 
 
   void refreshRooms() {
-    db.collection("users").doc(AuthenticationHelper().uid).collection(
+    db.collection("users").doc(getUID()).collection(
         "SelfDesignRoom").get().then((querySnapshot) {
       List<Widget> temprooms = [];
       for (var i in querySnapshot.docs) {
@@ -72,7 +71,7 @@ class _DesignState extends State<SelfDesign> {
     newRoom["members"] = ["Jack", "William"];
     newRoom["number of members"] = "14";
     FirebaseFirestore.instance.collection("users").doc(
-        AuthenticationHelper().uid).collection("SelfDesignRoom")
+        getUID()).collection("SelfDesignRoom")
         .doc("newRoom1")
         .set(newRoom);
     FirebaseFirestore.instance.collection("rooms").doc(
@@ -193,7 +192,7 @@ class _DesignState extends State<SelfDesign> {
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> fetchData() {
-    return db.collection("users").doc(AuthenticationHelper().uid).collection(
+    return db.collection("users").doc(getUID()).collection(
         "SelfDesignRoom").get();
   }
 }

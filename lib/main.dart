@@ -1,4 +1,4 @@
-import 'package:cs_project_train/Login/LoginPage.dart';
+import 'package:cs_project_train/Login/login.dart';
 import 'package:flutter/material.dart';
 import 'profile_screen.dart';
 import 'package:firebase_core/firebase_core.dart';

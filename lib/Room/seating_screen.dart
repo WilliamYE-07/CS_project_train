@@ -103,7 +103,7 @@ class _SeatingState extends State<SeatingPage> {
                   .collection("rooms")
                   .doc(roomCode)
                   .collection("members")
-                  .doc(AuthenticationHelper().uid)
+                  .doc(getUID())
                   .set({
                     "SeatNumber" : [row, seatNum]
               });
