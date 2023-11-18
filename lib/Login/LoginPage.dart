@@ -1,53 +1,39 @@
 import 'package:cs_project_train/Login/SignUp.dart';
 import 'package:cs_project_train/Room/seating_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../HomeScreen.dart';
 import 'authentication.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.title});
-
-  final String title;
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginState();
 }
 
 class _LoginState extends State<LoginPage> {
-  int _counter = 0;
-  String username = "";
-  String password = "";
-  void _incrementCounter() {
-    setState(() {
-      _counter = _counter + 2;
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+
+  Future<void> login() async{
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email.text,
+        password: password.text
+    ).then((result) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    }).catchError((onError) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          onError.message,
+          style: TextStyle(fontSize: 16),
+        ),
+      ));
     });
   }
-
-  void login() {
-    print("you are logged in!");
-    AuthenticationHelper()
-        .signIn(email: username, password: password!)
-        .then((result) {
-      if (result == null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen(title: "Hello, $username")),
-        );
-      }
-      else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-            result,
-            style: TextStyle(fontSize: 16),
-          ),
-        ));
-      }
-    });
-
-
-  }
-
-
 
   void Nextpage() {
     Navigator.push(
@@ -57,52 +43,48 @@ class _LoginState extends State<LoginPage> {
   }
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
-
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-
+        title: const Text("Login"),
       ),
       body: Padding(
         padding:const EdgeInsets.all(20),
         child:Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
             TextField(
               obscureText: false,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Username',
-
+                labelText: 'Email',
               ),
               onChanged: (String newEntry) {
-                username = newEntry;
-                print("Username was changed to $newEntry");
+                setState(() {
+                  email.text = newEntry;
+                });
               },
             ),
 
             TextField(
               obscureText: false,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Password',
-
               ),
               onChanged: (String newEntry) {
-                password = newEntry;
-                print(newEntry);
+                setState(() {
+                  password.text = newEntry;
+                });
               },
             ),
             ElevatedButton(onPressed: login, child: Text("Continue")),
             TextButton(onPressed: (){
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SignUp(title: "Hello, $username")),
+                MaterialPageRoute(builder: (context) => SignUp())
               );
-            }, child: Text("sign up"))
+            }, child: Text("Sign Up"))
           ]
         )
       )
