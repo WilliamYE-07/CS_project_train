@@ -24,28 +24,26 @@ class _DesignState extends State<SelfDesign> {
     refreshRooms();
   }
 
-
   void refreshRooms() {
     db.collection("users").doc(getUID()).collection(
         "SelfDesignRoom").get().then((querySnapshot) {
       List<Widget> temprooms = [];
       for (var i in querySnapshot.docs) {
-        i.data();
+        var data = i.data();
 
         setState(() {
-          temprooms.add(selfDesignRoom(
-              i.data()["groupname"], i.data()["members"][0],
-              i.data()["number of members"]));
-          print("hello");
+          temprooms.add(
+            selfDesignRoom(
+              data["groupname"],
+              data["members"][0],
+              data["number of members"]
+            )
+          );
         });
-        print(i.data()["groupname"]);
-        print(i.data()["number of members"]);
-        print(i.data()["members"]);
       }
       rooms = temprooms;
     });
   }
-
 
   void goDIY() {
     Navigator.push(
@@ -75,19 +73,6 @@ class _DesignState extends State<SelfDesign> {
     });
   }
 
-  void TrainButton() {
-    print("Hello, World!");
-  }
-
-  void SelfDesignButton() {
-    print("Hello, World!");
-  }
-
-  void ChatRoomButton() {
-    print("Hello, World!");
-  }
-
-
   void UpdateLV() {
     setState(() {
       rooms = rooms;
@@ -104,86 +89,73 @@ class _DesignState extends State<SelfDesign> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    print(rooms);
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme
-            .of(context)
-            .colorScheme
-            .inversePrimary,
-        title: Text("Design Your Room"),
-      ),
-
-      body: FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          future: fetchData(), // Call your fetchData function here
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                  child:
-                  CircularProgressIndicator()); // Display a loading indicator while waiting for data
-            } else if (snapshot.hasError) {
-              return Center(
-                  child: Text(
-                      'Error fetching data')); // Display an error message if data fetching fails
-            } else if (!snapshot.hasData) {
-              return Center(
-                  child: Text(
-                      'No data available')); // Display a message if no data is available
-            } else {
-              List<Widget> temprooms = [];
-              for (var i in snapshot.data!.docs) {
-                i.data();
-
-                  temprooms.add(selfDesignRoom(
-                      i.data()["groupname"], i.data()["members"][0],
-                      i.data()["number of members"]));
-              }
-              rooms = temprooms;
-
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    TextField(
-                      obscureText: false,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Search',
-                      ),
-                      onChanged: (String newEntry) {
-                        print(newEntry);
-                      },
-                    ),
-                    Container(
-                      height: 715,
-                      width: 500,
-                      child: ListView(
-                          children: rooms
-
-
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-          }
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: goDIY,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-      // This trailing comma makes auto-formatting nicer for build methods.
-    );
+  Future<QuerySnapshot<Map<String, dynamic>>> fetchData() {
+    return db.collection("users").doc(getUID()).collection("SelfDesignRoom").get();
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>> fetchData() {
-    return db.collection("users").doc(getUID()).collection(
-        "SelfDesignRoom").get();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text("Design Your Room"),
+      ),
+      body: ListView(
+        children: [
+          FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            future: fetchData(), // Call your fetchData function here
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child:CircularProgressIndicator()); // Display a loading indicator while waiting for data
+              } else if (snapshot.hasError) {
+                return const Center(child: Text('Error fetching data')); // Display an error message if data fetching fails
+              } else if (!snapshot.hasData) {
+                return const Center(child: Text('No data available')); // Display a message if no data is available
+              } else {
+                List<Widget> temprooms = [];
+                for (var i in snapshot.data!.docs) {
+                  var data = i.data();
+
+                  temprooms.add(
+                    selfDesignRoom(
+                      data["groupname"],
+                      data["members"][0],
+                      data["number of members"]
+                    )
+                  );
+                }
+                rooms = temprooms;
+
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      TextField(
+                        obscureText: false,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Search',
+                        ),
+                        onChanged: (String newEntry) {
+                          print(newEntry);
+                        },
+                      ),
+                      Container(
+                        height: 715,
+                        width: 500,
+                        child: ListView(
+                            children: rooms
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            }
+          ),
+        ]
+      ),
+    );
   }
 }
