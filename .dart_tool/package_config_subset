@@ -70,6 +70,10 @@ flutter_lints
 2.18
 file:///Users/jack/.pub-cache/hosted/pub.dev/flutter_lints-2.0.2/
 file:///Users/jack/.pub-cache/hosted/pub.dev/flutter_lints-2.0.2/lib/
+http
+2.19
+file:///Users/jack/.pub-cache/hosted/pub.dev/http-0.13.6/
+file:///Users/jack/.pub-cache/hosted/pub.dev/http-0.13.6/lib/
 http_parser
 2.12
 file:///Users/jack/.pub-cache/hosted/pub.dev/http_parser-4.0.2/

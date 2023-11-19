@@ -1,4 +1,9 @@
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cs_project_train/Login/authentication.dart';
 import 'package:flutter/material.dart';
+
+import 'HomeScreen.dart';
 
 
 
@@ -13,8 +18,23 @@ class _PersonalInfoSelectionState extends State<PersonalInfoSelection> {
   String selectedColor = "Red";
 
   List<String> genders = ['Male', 'Female', 'Other'];
-  List<String> countries = ['USA', 'Canada', 'UK', 'Australia', 'Other'];
+  List<String> countries = ['USA', 'Canada', 'UK', 'Australia', 'China', 'Other'];
   List<String> colors = ['Red', 'Green', 'Blue', 'Yellow', 'Other'];
+  List<String> information = [];
+
+  String city = "";
+  String age = "";
+  String color = "";
+  String activites = "";
+  String entertainments = "";
+  String SchoolSubjects = "";
+  String School = "";
+  String Occupation = "";
+  String Major = "";
+  String highestDegree = "";
+
+
+
 
   void _showOptionsDialog(List<String> options, String currentValue, Function(String) onSelect) {
     showDialog(
@@ -45,57 +65,188 @@ class _PersonalInfoSelectionState extends State<PersonalInfoSelection> {
       },
     );
   }
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: <Widget>[
-          SizedBox(height: 16.0),
-          ElevatedButton(
-            onPressed: () {
-              _showOptionsDialog(genders, selectedGender, (value) {
-                setState(() {
-                  selectedGender = value;
-                });
-              });
-            },
-            child: Text('Select Gender: ${selectedGender ?? "Select Gender"}'),
+    return Scaffold(
+      appBar: AppBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+
+            children: <Widget>[
+              ElevatedButton(
+                onPressed: () {
+                  _showOptionsDialog(genders, selectedGender, (value) {
+                    setState(() {
+                      selectedGender = value;
+
+                    });
+                  });
+                },
+                child: Text('Select Gender: ${selectedGender ?? "Select Gender"}'),
+              ),
+              SizedBox(height: 16.0),
+
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Country',
+
+                ),
+                onChanged: (String newEntry) {
+                  selectedCountry = newEntry;
+                },
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Age',
+
+                ),
+                onChanged: (String newEntry) {
+                  age = newEntry;
+                },
+              ),
+              SizedBox(height: 16.0),
+
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'City',
+
+                ),
+                onChanged: (String newEntry) {
+                  city = newEntry;
+                },
+              ),
+              SizedBox(height: 16.0),
+
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Favorite Activites',
+
+                ),
+                onChanged: (String newEntry) {
+                  activites = newEntry;
+                },
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Favorite Shows/Movies',
+
+                ),
+                onChanged: (String newEntry) {
+                  entertainments = newEntry;
+                },
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Favorite School Subjects',
+
+                ),
+                onChanged: (String newEntry) {
+                  SchoolSubjects = newEntry;
+
+                },
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'School',
+
+                ),
+                onChanged: (String newEntry) {
+                  School = newEntry;
+                },
+              ),
+              SizedBox(height: 16.0),
+
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Highest Degree',
+
+                ),
+                onChanged: (String newEntry) {
+                  highestDegree = newEntry;
+                },
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Occupation',
+
+                ),
+                onChanged: (String newEntry) {
+                    Occupation = newEntry;
+                  },
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                obscureText: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Major',
+
+                ),
+                onChanged: (String newEntry) {
+                  Major = newEntry;
+                },
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () {
+                  // You can process the selected values here
+                  information.add(Major);
+                  information.add(selectedGender);
+                  information.add(selectedColor);
+                  information.add(selectedCountry);
+                  information.add(city);
+                  information.add(entertainments);
+                  information.add(SchoolSubjects);
+                  information.add(School);
+                  information.add(Occupation);
+                  information.add(Major);
+                  information.add(age);
+                  information.add(highestDegree);
+
+                  db.collection("users").doc(AuthenticationHelper().uid).set({"information": information});
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen(title: '',)),
+                  );
+
+
+
+
+                },
+                child: Text('Submit'),
+              ),
+            ],
           ),
-          SizedBox(height: 16.0),
-          ElevatedButton(
-            onPressed: () {
-              _showOptionsDialog(countries, selectedCountry, (value) {
-                setState(() {
-                  selectedCountry = value;
-                });
-              });
-            },
-            child: Text('Select Country: ${selectedCountry ?? "Select Country"}'),
-          ),
-          SizedBox(height: 16.0),
-          ElevatedButton(
-            onPressed: () {
-              _showOptionsDialog(colors, selectedColor, (value) {
-                setState(() {
-                  selectedColor = value;
-                });
-              });
-            },
-            child: Text('Select Favorite Color: ${selectedColor ?? "Select Color"}'),
-          ),
-          SizedBox(height: 16.0),
-          ElevatedButton(
-            onPressed: () {
-              // You can process the selected values here
-              print('Selected Gender: $selectedGender');
-              print('Selected Country: $selectedCountry');
-              print('Selected Color: $selectedColor');
-            },
-            child: Text('Submit'),
-          ),
-        ],
+        ),
       ),
     );
   }
