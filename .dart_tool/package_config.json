@@ -128,6 +128,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "http",
+      "rootUri": "file:///C:/Users/victo/AppData/Local/Pub/Cache/hosted/pub.dev/http-0.13.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "http_parser",
       "rootUri": "file:///C:/Users/victo/AppData/Local/Pub/Cache/hosted/pub.dev/http_parser-4.0.2",
       "packageUri": "lib/",
@@ -242,7 +248,7 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2023-11-05T05:12:41.337957Z",
+  "generated": "2023-11-19T02:21:50.103157Z",
   "generator": "pub",
   "generatorVersion": "3.1.5"
 }

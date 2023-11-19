@@ -3,9 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cs_project_train/Login/authentication.dart';
 import 'package:flutter/material.dart';
 
-import 'HomeScreen.dart';
-
-
+import 'home.dart';
 
 class PersonalInfoSelection extends StatefulWidget {
   @override
@@ -232,10 +230,10 @@ class _PersonalInfoSelectionState extends State<PersonalInfoSelection> {
                   information.add(age);
                   information.add(highestDegree);
 
-                  db.collection("users").doc(AuthenticationHelper().uid).set({"information": information});
+                  db.collection("users").doc(getUID()).set({"information": information});
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => HomeScreen(title: '',)),
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
                   );
 
 
