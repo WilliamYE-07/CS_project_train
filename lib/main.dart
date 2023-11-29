@@ -1,9 +1,15 @@
 import 'package:cs_project_train/Login/login.dart';
 import 'package:flutter/material.dart';
-import 'profile_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+void goToPage(BuildContext context, Widget page) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+        builder: (context) => page),
+  );
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

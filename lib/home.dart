@@ -1,6 +1,7 @@
 import 'package:cs_project_train/Room/SearchedRoom.dart';
 import 'package:cs_project_train/Room/select_train.dart';
 import 'package:cs_project_train/Room/seating_screen.dart';
+import 'package:cs_project_train/main.dart';
 import 'package:flutter/material.dart';
 import 'package:cs_project_train/SelfDesign/SelfDesign.dart';
 import 'package:cs_project_train/chats/ChatRooms.dart';
@@ -55,26 +56,15 @@ class _HomeState extends State<HomeScreen> {
   }
 
   void TrainButton() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SelectTrain()),
-    );
+    goToPage(context, SelectTrain());
   }
 
   void SelfDesignButton() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SelfDesign()),
-    );
+    goToPage(context, SelfDesign());
   }
 
   void ChatRoomButton() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ChatSelector()),
-    );
+    goToPage(context, ChatSelector());
   }
 
   void SearchRoom() {

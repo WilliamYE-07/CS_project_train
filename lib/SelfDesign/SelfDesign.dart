@@ -1,12 +1,9 @@
-import 'dart:collection';
-
-import 'package:cs_project_train/Room/SearchedRoom.dart';
-import 'package:cs_project_train/Room/seating_screen.dart';
+import 'package:cs_project_train/SelfDesign/DIY.dart';
+import 'package:cs_project_train/main.dart';
 import 'package:flutter/material.dart';
-import '../CreateNew.dart';
-import 'DIY.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Login/authentication.dart';
+import 'SelfDesignRoom.dart';
 
 
 class SelfDesign extends StatefulWidget {
@@ -20,75 +17,6 @@ class _DesignState extends State<SelfDesign> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   List<Widget> rooms = [];
 
-  _DesignState() {
-    refreshRooms();
-  }
-
-  void refreshRooms() {
-    db.collection("users").doc(getUID()).collection(
-        "SelfDesignRoom").get().then((querySnapshot) {
-      List<Widget> temprooms = [];
-      for (var i in querySnapshot.docs) {
-        var data = i.data();
-
-        setState(() {
-          temprooms.add(
-            selfDesignRoom(
-              data["groupname"],
-              data["members"][0],
-              data["number of members"]
-            )
-          );
-        });
-      }
-      rooms = temprooms;
-    });
-  }
-
-  void goDIY() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => DIY(title: "Design It Yourself!")),
-    );
-  }
-
-  void AddRoom() {
-    Map<String, Object> newRoom = new HashMap<String, Object>();
-    newRoom["groupname"] = "name"; //.("groupname","name");
-    newRoom["code"] = "10086";
-    newRoom["members"] = ["Jack", "William"];
-    newRoom["number of members"] = "14";
-    FirebaseFirestore.instance.collection("users").doc(
-        getUID()).collection("SelfDesignRoom")
-        .doc("newRoom1")
-        .set(newRoom);
-    FirebaseFirestore.instance.collection("rooms").doc(
-        newRoom["code"] as String?).set(newRoom);
-    List<Widget> temprooms = rooms;
-    setState(() {
-      //temprooms.add();
-      rooms = temprooms;
-      print("hello");
-    });
-  }
-
-  void UpdateLV() {
-    setState(() {
-      rooms = rooms;
-      print("hello");
-    });
-  }
-
-  void SearchRoom() {
-    print("search result");
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SearchedRoom(title: "Search Result")),
-    );
-  }
-
   Future<QuerySnapshot<Map<String, dynamic>>> fetchData() {
     return db.collection("users").doc(getUID()).collection("SelfDesignRoom").get();
   }
@@ -98,12 +26,12 @@ class _DesignState extends State<SelfDesign> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Design Your Room"),
+        title: const Text("Your Rooms"),
       ),
       body: ListView(
         children: [
           FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            future: fetchData(), // Call your fetchData function here
+            future: fetchData(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child:CircularProgressIndicator()); // Display a loading indicator while waiting for data
@@ -112,19 +40,17 @@ class _DesignState extends State<SelfDesign> {
               } else if (!snapshot.hasData) {
                 return const Center(child: Text('No data available')); // Display a message if no data is available
               } else {
-                List<Widget> temprooms = [];
+                rooms.clear();
                 for (var i in snapshot.data!.docs) {
                   var data = i.data();
-
-                  temprooms.add(
-                    selfDesignRoom(
+                  rooms.add(
+                    SelfDesignRoom(
                       data["groupname"],
                       data["members"][0],
                       data["number of members"]
                     )
                   );
                 }
-                rooms = temprooms;
 
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -155,6 +81,12 @@ class _DesignState extends State<SelfDesign> {
             }
           ),
         ]
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          goToPage(context, DIY());
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

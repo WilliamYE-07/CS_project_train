@@ -1,47 +1,24 @@
 import 'package:cs_project_train/Room/SearchedRoom.dart';
 import 'package:cs_project_train/SelfDesign/questionare.dart';
-import 'package:cs_project_train/Room/seating_screen.dart';
+import 'package:cs_project_train/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class DIY extends StatefulWidget {
-  const DIY({super.key, required this.title});
-
-  final String title;
+  const DIY({super.key});
 
   @override
   State<DIY> createState() => _DIYState();
 }
 
 class _DIYState extends State<DIY> {
-  int _counter = 0;
-  Map<String, List<int>> seatingChart = {
-    "Row1" : [0,0,0],
-    "Row2" : [0,0,0],
-    "Row3" : [0,0,0],
-
-  }; //Make 2d array and convert it
-  //extend the table cell class to include an index
-
-  void _incrementCounter() {
-    setState(() {
-      _counter = _counter + 2;
-    });
-  }
-
-  void TrainButton() {
-    print("Hello, World!");
-  }
-
-  void SelfDesignButton() {
-    print("Hello, World!");
-  }
-
-  void ChatRoomButton() {
-    print("Hello, World!");
-  }
+  List<List<bool>> gridData = [];
+  TextEditingController widthController = TextEditingController();
+  TextEditingController heightController = TextEditingController();
+  int width = 6;
+  int height = 6;
 
   void SearchRoom() {
-    print("search result");
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -49,153 +26,154 @@ class _DIYState extends State<DIY> {
     );
   }
 
-  bool isColor = false;
-  bool isDragOver = false;
+  _DIYState() {
+    widthController.text = width.toString();
+    heightController.text = height.toString();
+
+    for (int i = 0; i < width; i++) {
+      gridData.add([]);
+      for (int j = 0; j < height; j++) {
+        gridData[i].add(false);
+      }
+    }
+  }
+
+  void onWidthChanged(int newWidth) {
+    if (newWidth > width) {
+      for (int i = 0; i < height; i++) {
+        for (int j = width; j < newWidth; j++) {
+          gridData[i].add(false);
+        }
+      }
+    } else {
+      for (int i = 0; i < height; i++) {
+        for (int j = width-1; j >= newWidth; j--) {
+          gridData[i].removeAt(j);
+        }
+      }
+    }
+    width = newWidth;
+  }
+
+  void onHeightChanged(int newHeight) {
+    if (newHeight > height) {
+      for (int i = height; i < newHeight; i++) {
+        gridData.add([]);
+        for (int j = 0; j < width; j++) {
+          gridData[i].add(false);
+        }
+      }
+    } else {
+      for (int j = height-1; j >= newHeight; j--) {
+        gridData.removeAt(j);
+      }
+    }
+    height = newHeight;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text("Do It Yourself"),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(4.0),
         child: Align(
           alignment: Alignment.topCenter,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 360,
-                height: 500,
-                color: Colors.green,
-                child: Table(
-                  border: TableBorder.all(), // Add border to the table cells
-                  children: [
-                    TableRow(children: [
-                      TableCell(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                seatingChart["Row1"]?[0] = 1;
-                                print(seatingChart);
-                              },
-                              child: Text("Hello"))),
-                      TableCell(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                seatingChart["Row1"]?[1] = 1;
-                                print(seatingChart);
-                              },
-                              child: Text("Hello"))),
-                      TableCell(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                seatingChart["Row1"]?[2] = 1;
-                                print(seatingChart);
-                              },
-                              child: Text("Hello"))),
-                    ]),
-                    TableRow(children: [
-                      TableCell(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                seatingChart["Row2"]?[0] = 1;
-                                print(seatingChart);
-                              },
-                              child: Text("Hello"))),
-                      TableCell(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                seatingChart["Row2"]?[1] = 1;
-                                print(seatingChart);
-                              },
-                              child: Text("Hello"))),
-                      TableCell(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                seatingChart["Row2"]?[2] = 1;
-                                print(seatingChart);
-                              },
-                              child: Text("Hello"))),
+              Expanded(
+                flex: 75,
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: gridData[0].length, // Number of columns
+                  ),
+                  itemBuilder: (BuildContext context, int index) {
+                    // Calculate the row and column of the current index
+                    int row = index ~/ gridData[0].length;
+                    int col = index % gridData[0].length;
 
-                    ]),
-                    TableRow(children: [
-                      TableCell(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                seatingChart["Row3"]?[0] = 1;
-                                print(seatingChart);
-                              },
-                              child: Text("Hello"))),
-                      TableCell(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                seatingChart["Row3"]?[1] = 1;
-                                print(seatingChart);
-                              },
-                              child: Text("Hello"))),
-                      TableCell(
-                          child: ElevatedButton(
-                              onPressed: () {
-                                seatingChart["Row3"]?[2] = 1;
-                                print(seatingChart);
-                              },
-                              child: Text("Hello"))),
-
-                    ]),
-                  ],
+                    // Return a container for each item in the grid
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: gridData[row][col] ? Colors.green : Colors.red, // This is what you need!
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              gridData[row][col] = !gridData[row][col];
+                            });
+                          },
+                          child: SizedBox.shrink()
+                      ),
+                    );
+                  },
+                  itemCount: gridData.length * gridData[0].length,
                 ),
               ),
-              Container(
-                width: 360,
-                height: 100,
-                color: Colors.amber,
-                child: Draggable<String>(
-                  data: 'MyData',
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    color: Colors.blue,
-                    child: Center(child: Text('Drag Me')),
-                  ),
-                  feedback: Container(
-                    width: 100,
-                    height: 100,
-                    color: Colors.blue.withOpacity(0.7),
-                    child: Center(child: Text('Dragging...')),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Questionnaire'),
-                                content: QuestionnaireForm(
-                                    seatingChart), // Display the form here
-                              );
+              Expanded(
+                flex: 25,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Text("Width: "),
+                          Expanded(
+                            child: TextField(
+                              controller: widthController,
+                              onSubmitted: (String newVal) {
+                                setState(() {
+                                  onWidthChanged(int.parse(newVal));
+                                });
+                              },
+                              keyboardType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly
+                              ], // Only numbers can be entered
+                            ),
+                          ),
+                          Text("Height: "),
+                          Expanded(
+                            child: TextField(
+                              controller: heightController,
+                              onSubmitted: (String newVal) {
+                                setState(() {
+                                  onHeightChanged(int.parse(newVal));
+                                });
+                              },
+                              keyboardType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly
+                              ], // Only numbers can be entered
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              goToPage(context, QuestionnaireForm(gridData));
                             },
-                          );
-                        });
-                      },
-                      child: Text("Save")),
-                  ElevatedButton(onPressed: () {}, child: Text("Formats")),
-                ],
-              ),
+                            child: Text("Continue")
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                )
+              )
             ],
           ),
         ),
       ),
-
-      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
