@@ -3,8 +3,6 @@ import 'package:cs_project_train/main.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../Login/authentication.dart';
-import 'SelfDesignRoom.dart';
-
 
 class SelfDesign extends StatefulWidget {
   const SelfDesign({super.key});
@@ -17,8 +15,37 @@ class _DesignState extends State<SelfDesign> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   List<Widget> rooms = [];
 
-  Future<QuerySnapshot<Map<String, dynamic>>> fetchData() {
-    return db.collection("users").doc(getUID()).collection("SelfDesignRoom").get();
+  Future<Map<String, dynamic>?> _loadUser() async {
+    final db = FirebaseFirestore.instance;
+    return (await db.collection("users").doc(getUID()).get()).data();
+  }
+
+  Future<Map<String, dynamic>?> getRoom(String ID) async {
+    final db = FirebaseFirestore.instance;
+    return (await db.collection("rooms").doc(ID).get()).data();
+  }
+
+  Widget getRoomWidget(String ID) {
+    return FutureBuilder(
+      future: getRoom(ID),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          Map<String, dynamic>? roomData = snapshot.data;
+          if (roomData != null) { // Successfully loaded data
+            return ElevatedButton(
+                onPressed: () {
+
+                },
+                child: Text(roomData['name'])
+            );
+          } else { // Problem loading data
+            return const Text("Error loading data");
+          }
+        } else { // Loading data
+          return const Text("loading...");
+        }
+      },
+    );
   }
 
   @override
@@ -28,59 +55,30 @@ class _DesignState extends State<SelfDesign> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Your Rooms"),
       ),
-      body: ListView(
-        children: [
-          FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            future: fetchData(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child:CircularProgressIndicator()); // Display a loading indicator while waiting for data
-              } else if (snapshot.hasError) {
-                return const Center(child: Text('Error fetching data')); // Display an error message if data fetching fails
-              } else if (!snapshot.hasData) {
-                return const Center(child: Text('No data available')); // Display a message if no data is available
-              } else {
-                rooms.clear();
-                for (var i in snapshot.data!.docs) {
-                  var data = i.data();
-                  rooms.add(
-                    SelfDesignRoom(
-                      data["groupname"],
-                      data["members"][0],
-                      data["number of members"]
-                    )
-                  );
-                }
+      body: FutureBuilder(
+        future: _loadUser(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            Map<String, dynamic>? userData = snapshot.data;
+            if (userData != null) { // Successfully loaded data
+              List<dynamic> roomIDs = userData["rooms"];
 
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      TextField(
-                        obscureText: false,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Search',
-                        ),
-                        onChanged: (String newEntry) {
-                          print(newEntry);
-                        },
-                      ),
-                      Container(
-                        height: 715,
-                        width: 500,
-                        child: ListView(
-                            children: rooms
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
+              return ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: roomIDs.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    String path = roomIDs[index];
+                    String ID = path.split("/")[1];
+                    return getRoomWidget(ID);
+                  }
+              );
+            } else { // Problem loading data
+              return const Text("Error loading data");
             }
-          ),
-        ]
+          } else { // Loading data
+            return const Text("loading...");
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

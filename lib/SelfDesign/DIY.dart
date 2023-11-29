@@ -1,5 +1,5 @@
 import 'package:cs_project_train/Room/SearchedRoom.dart';
-import 'package:cs_project_train/SelfDesign/questionare.dart';
+import 'package:cs_project_train/SelfDesign/Questionnaire.dart';
 import 'package:cs_project_train/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
