@@ -2,6 +2,8 @@ import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cs_project_train/Room/seating_screen.dart';
+import 'package:cs_project_train/main.dart';
+import 'package:cs_project_train/personal_info.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../home.dart';
@@ -16,18 +18,21 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   TextEditingController email = TextEditingController();
+  TextEditingController name = TextEditingController();
   TextEditingController password = TextEditingController();
 
   Future<void> login() async {
     await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email.text,
         password: password.text
-    ).then((result) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
-    }).catchError((onError) {
+    ).then((result) async {
+      await FirebaseFirestore.instance.collection("users").doc(getUID()).set({
+        "email": email.text,
+        "name": name.text,
+        "rooms": [],
+      }).then((value) {
+        goToPage(context, PersonalInfoSelection());
+      });}).catchError((onError) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
           onError.message,
@@ -61,6 +66,19 @@ class _SignUpState extends State<SignUp> {
                     onChanged: (String newEntry) {
                       setState(() {
                         email.text = newEntry;
+                      });
+                    },
+                  ),
+
+                  TextField(
+                    obscureText: false,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Name',
+                    ),
+                    onChanged: (String newEntry) {
+                      setState(() {
+                        name.text = newEntry;
                       });
                     },
                   ),
