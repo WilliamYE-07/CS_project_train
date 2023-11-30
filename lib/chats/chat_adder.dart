@@ -1,3 +1,5 @@
+import 'package:cs_project_train/main.dart';
+
 import 'chat_selector.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,14 +13,29 @@ class ChatAdder extends StatefulWidget {
 }
 
 class _ChatAdderState extends State<ChatAdder> {
+  TextEditingController groupName = new TextEditingController();
   TextEditingController email = new TextEditingController();
   String uidOfSearchedUser = "";
   List<Map<String, dynamic>> members = [];
-  final db = FirebaseFirestore.instance;
 
   Future<Map<String, dynamic>?> _loadUser() async {
     final db = FirebaseFirestore.instance;
     return (await db.collection("users").doc(uidOfSearchedUser).get()).data();
+  }
+
+  Future<void> searchUser(String queryString) async {
+    QuerySnapshot query = await FirebaseFirestore.instance.collection("users").where("email", isEqualTo: queryString).get();
+    if (query.docs.isEmpty) {
+      setState(() {
+        uidOfSearchedUser = "";
+      });
+    } else {
+      QueryDocumentSnapshot result = query.docs[0];
+      Map<String, dynamic> resultUser = result.data() as Map<String, dynamic>;
+      setState(() {
+        uidOfSearchedUser = query.docs[0].id;
+      });
+    }
   }
 
   Future<void> createInvites() async {
@@ -27,27 +44,30 @@ class _ChatAdderState extends State<ChatAdder> {
     List<String> memberUids = [];
     List<String> memberUidsWithOwner = [];
     for (Map<String, dynamic> entry in members) {
+      print(entry);
       memberUids.add(entry['uid']);
       memberUidsWithOwner.add(entry['uid']);
     }
     memberUidsWithOwner.add(myUid);
 
-    var chatDocRef = await db.collection('chats').add(
+    var chatDocRef = await FirebaseFirestore.instance.collection('chats').add(
       {
+        'chat_name': groupName.text,
         'members': memberUidsWithOwner
       }
     );
 
-    var createdInvite = await db.collection('invites').add(
+    var createdInvite = await FirebaseFirestore.instance.collection('invites').add(
       {
         'sender': myUid,
+        'chat_name': groupName.text,
         'recipients': memberUids,
         'members': memberUidsWithOwner,
         'chat_ref': chatDocRef
       }
     );
 
-    var chatRef = await db.collection('chat_keys').add(
+    var chatRef = await FirebaseFirestore.instance.collection('chat_keys').add(
       {
         'ref': chatDocRef,
         'user': myUid
@@ -59,26 +79,27 @@ class _ChatAdderState extends State<ChatAdder> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat Adder"),
+        title: Text("Create New Chat Group"),
       ),
       body: Column(
         children: [
           TextField(
+            obscureText: false,
+            controller: groupName,
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: "Group Name",
+            ),
+          ),
+          TextField(
+            obscureText: false,
             controller: email,
-            onChanged: (String changed) {
-              db.collection('users').where('email', isEqualTo: changed).get().then((querySnapshot) {
-                if (querySnapshot.docs.isEmpty) {
-                  print("isEmpty");
-                  return;
-                } else {
-                  print("is Sucessful");
-                  QueryDocumentSnapshot<Map<String, dynamic>> result = querySnapshot.docs[0];
-                  Map<String, dynamic> resultUser = result.data();
-                  setState(() {
-                    uidOfSearchedUser = querySnapshot.docs[0].id;
-                  });
-                }
-              });
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: "Search for a user's email here",
+            ),
+            onSubmitted: (value) {
+              searchUser(value);
             },
           ),
           Container(
@@ -89,21 +110,30 @@ class _ChatAdderState extends State<ChatAdder> {
                   Map<String, dynamic>? userData = snapshot.data;
                   if (userData != null) { // Successfully loaded data
                     return Card(
-                      child: Column(
-                        children: [
-                          Text("Name: " + userData['name']),
-                          Text("Email: " + userData['email']),
-                          ElevatedButton(
-                              onPressed: () {
-                                if (!members.contains(userData)) {
-                                  setState(() {
-                                    members.add(userData);
-                                  });
-                                }
-                              },
-                              child: Text("Add")
-                          )
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Name: ${userData['name']}"),
+                                Text("Email: ${userData['email']}"),
+                              ],
+                            ),
+                            ElevatedButton(
+                                onPressed: () {
+                                  if (!members.contains(userData)) {
+                                    setState(() {
+                                      members.add(userData);
+                                    });
+                                  }
+                                },
+                                child: Text("Add")
+                            )
+                          ],
+                        ),
                       ),
                     );
                   } else { // Problem loading data
@@ -115,34 +145,43 @@ class _ChatAdderState extends State<ChatAdder> {
               },
             ),
           ),
-          Divider(),
+          Text("Group Members"),
           Expanded(
             child: ListView.builder(
                 itemCount: members.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return Column(
-                  children: [
-                      Text("Name: " + members[index]['name']),
-                      Text("Email: " + members[index]['email']),
-
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            members.removeAt(index);
-                          });
-                        },
-                        child: Text("Remove")
-                      )
-                    ]
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Name: ${members[index]['name']}"),
+                              Text("Email: ${members[index]['email']}"),
+                            ],
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  members.removeAt(index);
+                                });
+                              },
+                              child: Text("Add")
+                          )
+                        ],
+                      ),
+                    ),
                   );
                 }
             )
           ),
           ElevatedButton(
               onPressed: () {
-                print("hello");
                 createInvites().then((value) {
-                  Navigator.push(context,MaterialPageRoute(builder: (context) => ChatSelector()));
+                  Navigator.of(context).pop();
                 });
               },
               child: Text("Submit")

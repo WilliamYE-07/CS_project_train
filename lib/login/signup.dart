@@ -29,6 +29,7 @@ class _SignUpState extends State<SignUp> {
       await FirebaseFirestore.instance.collection("users").doc(getUID()).set({
         "email": email.text,
         "name": name.text,
+        'uid': getUID(),
         "rooms": [],
       }).then((value) {
         goToPage(context, PersonalInfoSelection());

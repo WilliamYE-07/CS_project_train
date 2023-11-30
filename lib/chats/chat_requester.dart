@@ -18,6 +18,30 @@ class _ChatRequesterState extends State<ChatRequester> {
     return (await db.collection("users").doc(uid).get()).data();
   }
 
+  Widget memberDisplay(QueryDocumentSnapshot<Map<String, dynamic>> chatGroup) {
+    return ListView.builder( // Displays all group members
+      shrinkWrap: true,
+      itemCount: chatGroup['members'].length,
+      itemBuilder: (BuildContext context, int memberIndex) {
+        return FutureBuilder(
+          future: _loadUser(chatGroup['members'][memberIndex]),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData) {
+              Map<String, dynamic>? userData = snapshot.data;
+              if (userData != null) { // Successfully loaded data
+                return Text(userData['name']);
+              } else { // Problem loading data
+                return const Text("Error loading data");
+              }
+            } else { // Loading data
+              return const Text("loading...");
+            }
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _acceptInvite(QueryDocumentSnapshot<Map<String, dynamic>> inviteDoc) async {
     var chatRef = await db.collection('chat_keys').add(
         {
@@ -50,8 +74,8 @@ class _ChatRequesterState extends State<ChatRequester> {
       body: Column(
         children: [
           Expanded(
-            child: FutureBuilder(
-              future: db.collection('invites').where('recipients', arrayContains: myUid).get(),
+            child: StreamBuilder(
+              stream: db.collection('invites').where('recipients', arrayContains: myUid).snapshots(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) { // Successfully loaded data
                   List<QueryDocumentSnapshot<Map<String, dynamic>>>? invites = snapshot.data.docs;
@@ -60,50 +84,41 @@ class _ChatRequesterState extends State<ChatRequester> {
                       itemCount: invites.length,
                       itemBuilder: (BuildContext context, int index) {
                         return Card(
-                          child: Column(
-                            children: [
-                              ListView.builder( // Displays all group members
-                                shrinkWrap: true,
-                                itemCount: invites[index]['members'].length,
-                                itemBuilder: (BuildContext context, int memberIndex) {
-                                  return FutureBuilder(
-                                    future: _loadUser(invites[index]['members'][memberIndex]),
-                                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                                      if (snapshot.hasData) {
-                                        Map<String, dynamic>? userData = snapshot.data;
-                                        if (userData != null) { // Successfully loaded data
-                                          return Text(userData['name']);
-                                        } else { // Problem loading data
-                                          return const Text("Error loading data");
-                                        }
-                                      } else { // Loading data
-                                        return const Text("loading...");
-                                      }
-                                    },
-                                  );
-                                },
-                              ),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _acceptInvite(invites[index]);
-                                        });
-                                      },
-                                      child: Text("Accept")
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  invites[index]['chat_name'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold
                                   ),
-                                  ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _declineInvite(invites[index]);
-                                        });
-                                      },
-                                      child: Text("Decline")
-                                  ),
-                                ],
-                              )
-                            ],
+                                ),
+                                memberDisplay(invites[index]),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _acceptInvite(invites[index]);
+                                          });
+                                        },
+                                        child: Text("Accept")
+                                    ),
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            _declineInvite(invites[index]);
+                                          });
+                                        },
+                                        child: Text("Decline")
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
                         );
                       },

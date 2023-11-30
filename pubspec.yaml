@@ -41,6 +41,7 @@ dependencies:
   cloud_firestore: ^4.8.2
   firebase_auth: ^4.6.3
   flutter_profile_picture: ^2.0.0
+  flutter_chat_bubble: ^2.0.2
 
 dev_dependencies:
   flutter_test:
