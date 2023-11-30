@@ -3,6 +3,7 @@ import 'package:cs_project_train/Login/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert'; // Needed for json.decode
 
 class SeatingPage extends StatefulWidget {
   const SeatingPage(this.data, {super.key});
@@ -21,6 +22,86 @@ class _SeatingState extends State<SeatingPage> {
     Map<String, dynamic> rawChart = data['seating_chart'];
     for (int i = 0; i<rawChart.keys.length; i++) {
       gridData.add(rawChart[i.toString()]);
+    }
+  }
+
+  showRecommendationDialog(BuildContext context, Widget content) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Recommended Users"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          content,
+        ],
+      ),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  Future<void> getRecommendedUsers() async {
+    // we will be sending two things to the server:
+    // 1. the user's UID
+    // 2. the room code
+    var url = "https://williamserver.bigphan.repl.co/getSittingRecommendation/${getUID()}/${data['code']}";
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      // the server will collate a list of recommended users
+      // and sends back a list of those users as well as their seating positions.
+      Map<String, dynamic> map = json.decode(response.body);
+      List<dynamic> results = map['result'] as List<dynamic>;
+
+      List<Widget> result_UI = [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Name",
+              style: TextStyle(
+                fontWeight: FontWeight.bold
+              ),
+            ),
+            Text(
+              "Seat Coordinates",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold
+              ),
+            )
+          ],
+        )
+      ];
+
+      for (int i = 0; i < results.length; i++) {
+        result_UI.add(Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(results[i]['name']),
+            Text(results[i]['coordinates'].toString())
+          ],
+        ));
+      }
+
+      showRecommendationDialog(context, new Column(children: result_UI,));
+    } else {
+      print("Error occurred");
     }
   }
 
@@ -153,6 +234,12 @@ class _SeatingState extends State<SeatingPage> {
                     itemCount: gridData.length * gridData[0].length,
                   ),
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    getRecommendedUsers();
+                  },
+                  child: Text("Get Recommended Users")
+                )
               ],
             ),
           ),
