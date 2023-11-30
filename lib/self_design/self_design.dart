@@ -31,16 +31,28 @@ class _DesignState extends State<SelfDesign> {
       future: getRoom(ID),
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
-          Map<String, dynamic>? roomData = snapshot.data;
-          if (roomData != null) { // Successfully loaded data
-            return ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SeatingPage(roomData))
-                  );
-                },
-                child: Text(roomData['name'])
+          Map<String, dynamic>? data = snapshot.data;
+          if (data != null) { // Successfully loaded data
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SeatingPage(data))
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                  child: Column(
+                    children: [
+                      Text(data['name']),
+                      Text(data['code']),
+                      Text(data['description']),
+                    ],
+                  ),
+                ),
+              ),
             );
           } else { // Problem loading data
             return const Text("Error loading data");
@@ -71,7 +83,6 @@ class _DesignState extends State<SelfDesign> {
 
               List<dynamic> roomIDs = userData["rooms"];
               return ListView.builder(
-                  padding: const EdgeInsets.all(8),
                   itemCount: roomIDs.length,
                   itemBuilder: (BuildContext context, int index) {
                     String path = roomIDs[index];
