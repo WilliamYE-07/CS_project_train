@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cs_project_train/SelfDesign/self_design.dart';
 
 import 'chats/chat_selector.dart';
-import 'form.dart';
+import 'personal_info.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
