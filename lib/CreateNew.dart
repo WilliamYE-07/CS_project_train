@@ -1,6 +1,6 @@
 import 'package:cs_project_train/Room/seating_screen.dart';
 import 'package:flutter/material.dart';
-import 'SelfDesign/DIY.dart';
+import 'SelfDesign/diy.dart';
 
 class ChatBubble extends StatelessWidget {
   String text = '';

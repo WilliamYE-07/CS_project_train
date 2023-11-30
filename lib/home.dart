@@ -1,10 +1,7 @@
-import 'package:cs_project_train/Room/SearchedRoom.dart';
 import 'package:cs_project_train/Room/select_train.dart';
-import 'package:cs_project_train/Room/seating_screen.dart';
 import 'package:cs_project_train/main.dart';
 import 'package:flutter/material.dart';
-import 'package:cs_project_train/SelfDesign/SelfDesign.dart';
-import 'package:cs_project_train/chats/ChatRooms.dart';
+import 'package:cs_project_train/SelfDesign/self_design.dart';
 
 import 'chats/chat_selector.dart';
 import 'form.dart';
@@ -67,14 +64,6 @@ class _HomeState extends State<HomeScreen> {
     goToPage(context, ChatSelector());
   }
 
-  void SearchRoom() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SearchedRoom(title: "Search Result")),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +96,6 @@ class _HomeState extends State<HomeScreen> {
               });
             },
           ),
-          ElevatedButton(onPressed: SearchRoom, child: Text("Search")),
           makeLargeButton(
             "Train",
             "https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg",

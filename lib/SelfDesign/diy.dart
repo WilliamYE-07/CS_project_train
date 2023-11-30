@@ -1,5 +1,4 @@
-import 'package:cs_project_train/Room/SearchedRoom.dart';
-import 'package:cs_project_train/SelfDesign/Questionnaire.dart';
+import 'package:cs_project_train/SelfDesign/questionnaire.dart';
 import 'package:cs_project_train/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,18 +17,11 @@ class _DIYState extends State<DIY> {
   int width = 6;
   int height = 6;
 
-  void SearchRoom() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SearchedRoom(title: "Search Result")),
-    );
-  }
-
   _DIYState() {
     widthController.text = width.toString();
     heightController.text = height.toString();
 
+    // initialize the gridData of width and height
     for (int i = 0; i < width; i++) {
       gridData.add([]);
       for (int j = 0; j < height; j++) {
@@ -39,13 +31,16 @@ class _DIYState extends State<DIY> {
   }
 
   void onWidthChanged(int newWidth) {
+    // if new width is larger, add the difference to all rows.
     if (newWidth > width) {
       for (int i = 0; i < height; i++) {
         for (int j = width; j < newWidth; j++) {
           gridData[i].add(false);
         }
       }
-    } else {
+    }
+    // if new width is smaller, remove the difference from all rows.
+    else {
       for (int i = 0; i < height; i++) {
         for (int j = width-1; j >= newWidth; j--) {
           gridData[i].removeAt(j);
@@ -56,6 +51,7 @@ class _DIYState extends State<DIY> {
   }
 
   void onHeightChanged(int newHeight) {
+    // if new height is larger, add however many rows
     if (newHeight > height) {
       for (int i = height; i < newHeight; i++) {
         gridData.add([]);
@@ -63,7 +59,9 @@ class _DIYState extends State<DIY> {
           gridData[i].add(false);
         }
       }
-    } else {
+    }
+    // if new height is smaller, remove however many rows
+    else {
       for (int j = height-1; j >= newHeight; j--) {
         gridData.removeAt(j);
       }
@@ -102,7 +100,7 @@ class _DIYState extends State<DIY> {
                       padding: const EdgeInsets.all(4.0),
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: gridData[row][col] ? Colors.green : Colors.red, // This is what you need!
+                            backgroundColor: gridData[row][col] ? Colors.green : Colors.red,
                           ),
                           onPressed: () {
                             setState(() {

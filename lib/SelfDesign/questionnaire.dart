@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cs_project_train/SelfDesign/SelfDesign.dart';
+import 'package:cs_project_train/SelfDesign/self_design.dart';
 import 'package:cs_project_train/main.dart';
 import 'package:flutter/material.dart';
 
@@ -28,6 +28,7 @@ class QuestionnaireForm extends StatelessWidget {
   }
 
   HashMap<String, List<bool>> convertGridToSeatingChart() {
+    // key = row index, value = list
     HashMap<String, List<bool>> seatingChart = HashMap<String, List<bool>>();
     for (int i = 0; i < gridData.length; i++) {
       seatingChart.putIfAbsent(i.toString(), () => gridData[i]);
@@ -87,22 +88,25 @@ class QuestionnaireForm extends StatelessWidget {
                       newRoom["creator"] = getUID();
                       newRoom["code"] = code;
                       newRoom["member_cap"] = numberOfMembers;
-                      newRoom["members"] = [];
+                      newRoom["members"] = {};
                       newRoom["description"] = description;
                       newRoom["seating_chart"] = convertGridToSeatingChart();
 
-                      print("Data ready");
+                      // initialize document
                       DocumentReference roomRef = FirebaseFirestore.instance.collection("rooms").doc(code);
-                      roomRef.set(newRoom); //this one has some error
+                      roomRef.set(newRoom);
 
-                      print("Room made");
+                      // update user records
                       DocumentReference userRef = FirebaseFirestore.instance.collection("users").doc(getUID());
                       userRef.get().then((DocumentSnapshot doc) {
                           final data = doc.data() as Map<String, dynamic>;
                           List roomList = [];
+
+                          // if user doesn't have room list
                           if (data.containsKey("rooms")) {
                             roomList = data["rooms"];
                           }
+
                           roomList.add(roomRef.path);
                           userRef.update({
                             "rooms": roomList

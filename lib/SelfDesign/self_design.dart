@@ -1,4 +1,4 @@
-import 'package:cs_project_train/SelfDesign/DIY.dart';
+import 'package:cs_project_train/SelfDesign/diy.dart';
 import 'package:cs_project_train/main.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +15,7 @@ class _DesignState extends State<SelfDesign> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   List<Widget> rooms = [];
 
-  Future<Map<String, dynamic>?> _loadUser() async {
+  Future<Map<String, dynamic>?> loadUser() async {
     final db = FirebaseFirestore.instance;
     return (await db.collection("users").doc(getUID()).get()).data();
   }
@@ -56,7 +56,7 @@ class _DesignState extends State<SelfDesign> {
         title: const Text("Your Rooms"),
       ),
       body: FutureBuilder(
-        future: _loadUser(),
+        future: loadUser(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             Map<String, dynamic>? userData = snapshot.data;

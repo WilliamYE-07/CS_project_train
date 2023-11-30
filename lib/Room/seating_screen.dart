@@ -1,283 +1,164 @@
-import 'dart:convert';
+import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cs_project_train/Login/authentication.dart';
+import 'package:cs_project_train/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:http/http.dart' as http;
 
 class SeatingPage extends StatefulWidget {
-  const SeatingPage(this.title, this.id);
+  const SeatingPage(this.data, {super.key});
 
-  final String id;
-  final String title;
+  final Map<String, dynamic> data;
 
   @override
-  State<SeatingPage> createState() => _SeatingState();
+  State<SeatingPage> createState() => _SeatingState(data);
 }
 
 class _SeatingState extends State<SeatingPage> {
-  Map<String, List<int>> seatingChart = {};
-  FirebaseFirestore db = FirebaseFirestore.instance;
-  Widget reccomendedSeats = Text("Example");
-  List<String> emails = [];
-  late QuerySnapshot<Map<String, dynamic>> membersList;
-  Map<String, String> uidtoEmail = {};
+  List<List<dynamic>> gridData = [];
+  Map<String, dynamic> data;
 
-  _SeatingState() {
-    db.collection("rooms").doc(widget.id).get().then((value) {
-      for (var i in value.data()?["SeatingChart"].keys) {
-        for (int x = 0; x < 3; x++) {
-          seatingChart[i]?[x] = value.data()?["SeatingChart"][i][x] as int;
-        }
+  _SeatingState(this.data) {
+    Map<String, dynamic> rawChart = data['seating_chart'];
+    for (int i = 0; i<rawChart.keys.length; i++) {
+      gridData.add(rawChart[i.toString()]);
+    }
+  }
+
+  Future<Map<String, dynamic>?> loadUser(String UID) async {
+    return (await FirebaseFirestore.instance.collection("users").doc(UID).get()).data();
+  }
+
+  String getSitterUID(row, col) {
+    Map<String, dynamic> memberList = data['members'];
+
+    // is someone sitting there?
+    for (String UID in memberList.keys) {
+      int otherRow = memberList[UID][0];
+      int otherCol = memberList[UID][1];
+
+      // someone's already sitting here
+      if (otherRow == row && otherCol == col) {
+        return UID;
       }
-    });
-    //This goes to the current users account so jack123@gmail.com, william123@gmail.com
-    db.collection("users").doc(getUID()).get().then((value) {
-      List<dynamic> x = value
-          .data()?["information"]; //gets the information for your current account
+    }
+    return "";
+  }
 
-      //goes through the members list of the current room that we are in
-      db.collection("rooms").doc(widget.id).collection("members").get().then((
-          value) async {
-        Map<String, List<dynamic>> xMembers = {
-        }; //Sets up a list of Uid as keys and information as value
-
-        for (var i in value.docs) {
-          i["SeatNumber"];
-          i.id;
-          await db.collection("users").doc(i.id).get().then((v) {
-            uidtoEmail[i.id] = (v.data()?["email"]); //id and email into a map
-
-            if (getUID() != i.id) {
-              xMembers[i.id] = (v
-                  .data()?["information"]); //uid as a key and information as a value
-
-            }
-          });
-        }
-        String xMemb = jsonEncode(
-            xMembers); //"Bank" this is all of the information for all the other members of this current room
-        String X = jsonEncode(
-            x); //"Target" this is all the information for the current user of the app
-
-        print(xMembers);
-
-        //Use http to request information from the sever function getSittingRecommandation
-        // using X "Target" our information
-        // using xMemb "Bank" the members information
-
-        http.get(Uri.parse(
-            'https://williamserver.bigphan.repl.co/getSittingRecommandation/$X/$xMemb'))
-            .then((r) async {
-          print(r.statusCode);
-
-          if (r.statusCode == 200) { //if the request is sucessful
-            // We  will get back an organized list of scores, followed by UID
-            List<dynamic> listOfScores = jsonDecode(r.body);
-            print(listOfScores);
-            //we then list our emails in order under the table to show the user who has the most intrests align with yours
-            for (var i in listOfScores) {
-              emails.add(uidtoEmail[i[1]]!);
-            }
+  Widget getUserSittingThere(int row, int col, String userSittingThere) {
+    return FutureBuilder(
+      future: loadUser(userSittingThere),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          Map<String, dynamic>? userData = snapshot.data;
+          if (userData != null) { // Successfully loaded data
+            return ProfilePicture(
+                name: userData['name'],
+                radius: 31,
+                fontsize: 21
+            );
+          } else { // Problem loading data
+            return const Icon(Icons.error);
           }
+        } else { // Loading data
+          return const CircularProgressIndicator();
         }
-        );
-      });
+      },
+    );
+  }
 
-      print(value.data()?["information"]);
+  Widget getFreeSeatButton(row, col) {
+    bool validSeat = gridData[row][col];
+
+    return ElevatedButton(
+        style: ElevatedButton.styleFrom(
+        backgroundColor: gridData[row][col] ? Colors.green : Colors.red,
+      ),
+      onPressed: validSeat? () {
+        joinSeat(row, col).then((value) {
+          setState(() {
+
+          });
+        });
+      } : null,
+      child: SizedBox.shrink()
+    );
+  }
+
+  Future<void> joinSeat(int row, int col) async {
+    DocumentReference roomRef = FirebaseFirestore.instance.collection("rooms").doc(data['code']);
+    Map<String, dynamic> memberList = data['members'];
+
+    // is someone sitting there?
+    for (String UID in memberList.keys) {
+      int otherRow = memberList[UID][0];
+      int otherCol = memberList[UID][1];
+
+      // someone's already sitting here
+      if (otherRow == row && otherCol == col) {
+        return;
+      }
+    }
+    // no one is sitting there, safe to begin operation
+
+    // if we're already sitting somewhere else, get up
+    if (memberList.containsKey(getUID())) {
+      memberList.remove(getUID());
+    }
+
+    // sit back down
+    memberList.putIfAbsent(getUID(), () => [row, col]);
+
+    await roomRef.update({
+      "members": memberList
     });
   }
-
-  Future<DocumentSnapshot<Map<String, dynamic>>> fetchData() {
-    return db.collection("rooms").doc(widget.id).get();
-  }
-
-  Map<String, Map<String, dynamic>> chooseRow(AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot, String row, List<int> adjSeat) {
-    Map<String, Map<String, dynamic>> seatingChartDictionary = {};
-
-    if (row == "Row1") {
-      seatingChartDictionary["SeatingChart"] = {
-        "Row1": adjSeat,
-        "Row2": snapshot.data!["SeatingChart"]["Row2"],
-        "Row3": snapshot.data!["SeatingChart"]["Row3"]
-      };
-    }
-    if (row == "Row2") {
-      seatingChartDictionary["SeatingChart"] = {
-        "Row1": snapshot.data!["SeatingChart"]["Row1"],
-        "Row2": adjSeat,
-        "Row3": snapshot.data!["SeatingChart"]["Row3"]
-      };
-    }
-    if (row == "Row3") {
-      seatingChartDictionary["SeatingChart"] = {
-        "Row1": snapshot.data!["SeatingChart"]["Row1"],
-        "Row2": snapshot.data!["SeatingChart"]["Row2"],
-        "Row3": adjSeat
-      };
-    }
-    return seatingChartDictionary;
-  }
-
-
-  Widget seatButton(AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> snapshot, int seatNum, List<int> adjSeat, String row){
-    int seatCode = snapshot.data!["SeatingChart"][row][seatNum];
-
-    if (seatCode == 1) {
-      Map<String, Map<String, dynamic>> seatingChartDictionary = chooseRow(
-          snapshot, row, adjSeat);
-      return ElevatedButton(
-          onPressed: () {
-            setState(() {
-              db.collection("rooms").doc(widget.id).update(
-                  {
-                    "SeatingChart": seatingChartDictionary["SeatingChart"]
-                  }
-              );
-              db.collection("rooms").doc(widget.id).collection("members").doc(
-                  getUID()).set(
-                  {
-                    "SeatNumber": [row, seatNum]
-                  }
-              );
-            });
-          },
-          child: const Text("Take Seat!"));
-    }
-    if (seatCode == 2) {
-      String name = "";
-
-      for (var i in membersList.docs) {
-        if (i["SeatNumber"][0] == row && i["SeatNumber"][1] == seatNum) {
-          name = uidtoEmail[i.id].toString();
-          print("THIS IS THE NAME OF THE PERSON " + name);
-          return Text("SeatTaken by " + name);
-        }
-      }
-      return Text("SeatTaken by " + name);
-    }
-    else {
-      return const Text("No Seat");
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(widget.data['name']),
       ),
-      body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                  future: fetchData(), // Call your fetchData function here
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator()); // Display a loading indicator while waiting for data
-                    } else if (snapshot.hasError) {
-                      return const Center(child: Text('Error fetching data')); // Display an error message if data fetching fails
-                    } else if (!snapshot.hasData) {
-                      return const Center(child: Text('No data available')); // Display a message if no data is available
-                    } else {
-                      return Table(
-                          border: TableBorder.all(),
-                          // Add border to the table cells
-                          children: [
-                            TableRow(children: [
-                              TableCell(child: Container(
-                                  child: seatButton(snapshot, 0, [
-                                    2,
-                                    snapshot.data!["SeatingChart"]["Row1"][1],
-                                    snapshot.data!["SeatingChart"]["Row1"][2]
-                                  ], "Row1"))),
-                              TableCell(
-                                  child: Container(
-                                      child: seatButton(snapshot, 1, [
-                                        snapshot
-                                            .data!["SeatingChart"]["Row1"][0],
-                                        2,
-                                        snapshot
-                                            .data!["SeatingChart"]["Row1"][2]
-                                      ], "Row1"))),
-                              TableCell(
-                                  child: Container(
-                                      child: seatButton(snapshot, 2, [
-                                        snapshot
-                                            .data!["SeatingChart"]["Row1"][0],
-                                        snapshot
-                                            .data!["SeatingChart"]["Row1"][1],
-                                        2
-                                      ], "Row1"))),
-                            ]),
-                            TableRow(children: [
-                              TableCell(
-                                  child: Container(
-                                      child: seatButton(snapshot, 0, [
-                                        2,
-                                        snapshot
-                                            .data!["SeatingChart"]["Row2"][1],
-                                        snapshot
-                                            .data!["SeatingChart"]["Row2"][2]
-                                      ], "Row2"))),
-                              TableCell(
-                                  child: Container(
-                                      child: seatButton(snapshot, 1, [
-                                        snapshot
-                                            .data!["SeatingChart"]["Row2"][0],
-                                        2,
-                                        snapshot
-                                            .data!["SeatingChart"]["Row2"][2]
-                                      ], "Row2"))),
-                              TableCell(
-                                  child: Container(
-                                      child: seatButton(snapshot, 2, [
-                                        snapshot
-                                            .data!["SeatingChart"]["Row2"][0],
-                                        snapshot
-                                            .data!["SeatingChart"]["Row2"][1],
-                                        2
-                                      ], "Row2"))),
-                            ]),
-                            TableRow(children: [
-                              TableCell(
-                                  child: Container(
-                                      child: seatButton(snapshot, 0, [
-                                        2,
-                                        snapshot
-                                            .data!["SeatingChart"]["Row3"][1],
-                                        snapshot
-                                            .data!["SeatingChart"]["Row3"][2]
-                                      ], "Row3"))),
-                              TableCell(
-                                  child: Container(
-                                      child: seatButton(snapshot, 1, [
-                                        snapshot
-                                            .data!["SeatingChart"]["Row3"][0],
-                                        2,
-                                        snapshot
-                                            .data!["SeatingChart"]["Row3"][2]
-                                      ], "Row3"))),
-                              TableCell(
-                                  child: Container(
-                                      child: seatButton(snapshot, 2, [
-                                        snapshot
-                                            .data!["SeatingChart"]["Row3"][0],
-                                        snapshot
-                                            .data!["SeatingChart"]["Row3"][1],
-                                        2
-                                      ], "Row3"))),
-                            ]),
-                          ]
+      body: Padding(
+        padding: const EdgeInsets.all(4.0),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 75,
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: gridData[0].length, // Number of columns
+                    ),
+                    itemBuilder: (BuildContext context, int index) {
+                      // Calculate the row and column of the current index
+                      int row = index ~/ gridData[0].length;
+                      int col = index % gridData[0].length;
+
+                      String userSittingThere = getSitterUID(row, col);
+                      bool isSeatTaken = userSittingThere.isNotEmpty;
+
+                      // Return a container for each item in the grid
+                      return Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: isSeatTaken?
+                            getUserSittingThere(row, col, userSittingThere) :
+                            getFreeSeatButton(row, col)
                       );
-                    }
-                  }),
-              Text(emails.toString())
-            ],
-          )
+                    },
+                    itemCount: gridData.length * gridData[0].length,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }

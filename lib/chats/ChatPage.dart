@@ -1,5 +1,3 @@
-  import 'package:cs_project_train/Room/SearchedRoom.dart';
-import 'package:cs_project_train/Room/seating_screen.dart';
 import 'package:flutter/material.dart';
 import '../CreateNew.dart';
 class ChatPage extends StatefulWidget {
@@ -35,14 +33,6 @@ class _ChatPageState extends State<ChatPage> {
 
 
 
-  void SearchRoom() {
-    print("search result");
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => SearchedRoom(title: "Search Result")),
-    );
-  }
   double ContainerHeight = 0;
   List<Widget> Chat = [];
 

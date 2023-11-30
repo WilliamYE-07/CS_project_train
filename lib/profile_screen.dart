@@ -11,20 +11,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfileState extends State<ProfilePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter = _counter + 2;
-    });
-  }
-
-  void Nextpage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SeatingPage("Seating Page", "1234")),
-    );
-  }
   @override
   Widget build(BuildContext context) {
 
@@ -40,14 +26,9 @@ class _ProfileState extends State<ProfilePage> {
             Icons.train_sharp,
             color: Colors.amber,
             size: 55.0,
-          ),TextButton(onPressed: Nextpage, child: Text("。。。"))
+          ),
         ]
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: Nextpage,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

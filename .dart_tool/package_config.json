@@ -116,6 +116,12 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "flutter_profile_picture",
+      "rootUri": "file:///C:/Users/victo/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_profile_picture-2.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_test",
       "rootUri": "file:///C:/Users/victo/src/flutter/packages/flutter_test",
       "packageUri": "lib/",
@@ -248,7 +254,7 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2023-11-19T02:21:50.103157Z",
+  "generated": "2023-11-30T06:38:32.415582Z",
   "generator": "pub",
   "generatorVersion": "3.1.5"
 }
