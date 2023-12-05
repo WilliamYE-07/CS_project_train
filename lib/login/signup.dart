@@ -36,7 +36,7 @@ class _SignUpState extends State<SignUp> {
       });}).catchError((onError) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-          onError.message,
+          "Username taken, or fields not filled in.",
           style: TextStyle(fontSize: 16),
         ),
       ));
@@ -58,43 +58,50 @@ class _SignUpState extends State<SignUp> {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextField(
-                    obscureText: false,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Email',
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      obscureText: false,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Email',
+                      ),
+                      onChanged: (String newEntry) {
+                        setState(() {
+                          email.text = newEntry;
+                        });
+                      },
                     ),
-                    onChanged: (String newEntry) {
-                      setState(() {
-                        email.text = newEntry;
-                      });
-                    },
                   ),
-
-                  TextField(
-                    obscureText: false,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Name',
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      obscureText: false,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Name',
+                      ),
+                      onChanged: (String newEntry) {
+                        setState(() {
+                          name.text = newEntry;
+                        });
+                      },
                     ),
-                    onChanged: (String newEntry) {
-                      setState(() {
-                        name.text = newEntry;
-                      });
-                    },
                   ),
-
-                  TextField(
-                    obscureText: false,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Password',
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      obscureText: false,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Password',
+                      ),
+                      onChanged: (String newEntry) {
+                        setState(() {
+                          password.text = newEntry;
+                        });
+                      },
                     ),
-                    onChanged: (String newEntry) {
-                      setState(() {
-                        password.text = newEntry;
-                      });
-                    },
                   ),
                   ElevatedButton(onPressed: login, child: Text("Continue")),
                 ]

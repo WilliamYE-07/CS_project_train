@@ -1,5 +1,6 @@
 import 'package:cs_project_train/Login/signup.dart';
 import 'package:cs_project_train/Room/seating_screen.dart';
+import 'package:cs_project_train/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../home.dart';
@@ -28,7 +29,7 @@ class _LoginState extends State<LoginPage> {
     }).catchError((onError) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-          onError.message,
+          "Incorrect email or password.",
           style: TextStyle(fontSize: 16),
         ),
       ));
@@ -39,6 +40,7 @@ class _LoginState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Login"),
       ),
@@ -47,41 +49,63 @@ class _LoginState extends State<LoginPage> {
         child:Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              obscureText: false,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Email',
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "SeatSavvy",
+                style: TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold
+                ),
               ),
-              onChanged: (String newEntry) {
-                setState(() {
-                  email.text = newEntry;
-                });
-              },
             ),
-
-            TextField(
-              obscureText: false,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Password',
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Email',
+                ),
+                onChanged: (String newEntry) {
+                  setState(() {
+                    email.text = newEntry;
+                  });
+                },
               ),
-              onChanged: (String newEntry) {
-                setState(() {
-                  password.text = newEntry;
-                });
-              },
             ),
-            ElevatedButton(
-                onPressed: login,
-                child: Text("Continue")
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                obscureText: true,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Password',
+                ),
+                onChanged: (String newEntry) {
+                  setState(() {
+                    password.text = newEntry;
+                  });
+                },
+              ),
             ),
-            TextButton(onPressed: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SignUp())
-              );
-            }, child: Text("Sign Up"))
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                      onPressed: login,
+                      child: Text("Continue")
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        goToPage(context, SignUp());
+                      },
+                      child: Text("Sign Up")
+                  )
+                ],
+              ),
+            )
           ]
         )
       )

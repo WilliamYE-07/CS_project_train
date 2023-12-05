@@ -3,6 +3,7 @@ import 'package:cs_project_train/Login/authentication.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
+import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 
 class Chat extends StatefulWidget {
   final DocumentReference docRef;
@@ -17,39 +18,88 @@ class _ChatState extends State<Chat> {
   TextEditingController message = TextEditingController();
   final db = FirebaseFirestore.instance;
   String myUid = FirebaseAuth.instance.currentUser!.uid;
+  Map<String, Widget> userProfiles = {};
 
-  Widget theirBubble(String message) {
-    return ChatBubble(
-      clipper: ChatBubbleClipper1(type: BubbleType.receiverBubble),
-      backGroundColor: Color(0xffE7E7ED),
-      margin: EdgeInsets.only(top: 10),
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.7,
+  Future<Map<String, dynamic>?> loadUser(String UID) async {
+    return (await FirebaseFirestore.instance.collection("users").doc(UID).get()).data();
+  }
+
+  Widget getUserProfilePicture(String UID) {
+    if (!userProfiles.containsKey(UID)) {
+      return FutureBuilder(
+        future: loadUser(UID),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            Map<String, dynamic>? userData = snapshot.data;
+            if (userData != null) { // Successfully loaded data
+              // Just save what the FutureBuilder loads
+              userProfiles[UID] = Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ProfilePicture(
+                    name: userData['name'],
+                    radius: 31,
+                    fontsize: 21
+                ),
+              );
+              return userProfiles[UID]!;
+            } else { // Problem loading data
+              return const Icon(Icons.error);
+            }
+          } else { // Loading data
+            return const CircularProgressIndicator();
+          }
+        },
+      );
+    }
+    return userProfiles[UID]!;
+  }
+
+  Widget theirBubble(String UID, String message) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        getUserProfilePicture(UID),
+        ChatBubble(
+          clipper: ChatBubbleClipper1(type: BubbleType.receiverBubble),
+          backGroundColor: Color(0xffE7E7ED),
+          margin: EdgeInsets.only(top: 10),
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
+            child: Text(
+              message,
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
         ),
-        child: Text(
-          message,
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
+      ],
     );
   }
 
   Widget myBubble(String message) {
-    return ChatBubble(
-      clipper: ChatBubbleClipper1(type: BubbleType.sendBubble),
-      alignment: Alignment.topRight,
-      margin: EdgeInsets.only(top: 10),
-      backGroundColor: Colors.blue,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.7,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ChatBubble(
+          clipper: ChatBubbleClipper1(type: BubbleType.sendBubble),
+          alignment: Alignment.topRight,
+          margin: EdgeInsets.only(top: 10),
+          backGroundColor: Colors.blue,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.7,
+            ),
+            child: Text(
+              message,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         ),
-        child: Text(
-          message,
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+        getUserProfilePicture(getUID()),
+      ],
     );
   }
 
@@ -59,7 +109,7 @@ class _ChatState extends State<Chat> {
       itemBuilder: (BuildContext context, int index) {
         return chatData['messages'][index]['sender'] == getUID()?
           myBubble(chatData['messages'][index]['message']) :
-          theirBubble(chatData['messages'][index]['message']);
+          theirBubble(chatData['messages'][index]['sender'], chatData['messages'][index]['message']);
       },
     );
   }
@@ -98,7 +148,6 @@ class _ChatState extends State<Chat> {
       body: Column(
         children: [
           Expanded(
-            flex: 80,
             child: FutureBuilder(
               future: widget.docRef.get(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -118,30 +167,33 @@ class _ChatState extends State<Chat> {
               },
             )
           ),
-          Expanded(
-            flex: 10,
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: "Chat something!",
+          Stack(
+            alignment: AlignmentDirectional.bottomStart,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: "Chat something!",
+                      ),
+                      maxLines: null,
+                      controller: message,
+                      // onSubmitted: (value) {
+                        // sendMessage();
+                      // },
                     ),
-                    controller: message,
-                    onSubmitted: (value) {
+                  ),
+                  IconButton(
+                    onPressed: () {
                       sendMessage();
                     },
-                  ),
-                ),
-                // IconButton(
-                //   onPressed: () {
-                //     sendMessage();
-                //   },
-                //   icon: Icon(Icons.send),
-                // )
-              ],
-            ),
+                    icon: Icon(Icons.send),
+                  )
+                ],
+              ),
+            ],
           )
         ],
       ),
