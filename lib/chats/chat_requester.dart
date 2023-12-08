@@ -80,49 +80,52 @@ class _ChatRequesterState extends State<ChatRequester> {
                 if (snapshot.hasData) { // Successfully loaded data
                   List<QueryDocumentSnapshot<Map<String, dynamic>>>? invites = snapshot.data.docs;
                     if (invites != null) {
-                    return ListView.builder( // Once posts are retrieved, generates ListView
-                      itemCount: invites.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  invites[index]['chat_name'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold
+                      if (invites.isEmpty) {
+                        return Text("You have no invites.");
+                      }
+                      return ListView.builder( // Once posts are retrieved, generates ListView
+                        itemCount: invites.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    invites[index]['chat_name'],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold
+                                    ),
                                   ),
-                                ),
-                                memberDisplay(invites[index]),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    ElevatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _acceptInvite(invites[index]);
-                                          });
-                                        },
-                                        child: Text("Accept")
-                                    ),
-                                    ElevatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            _declineInvite(invites[index]);
-                                          });
-                                        },
-                                        child: Text("Decline")
-                                    ),
-                                  ],
-                                )
-                              ],
+                                  memberDisplay(invites[index]),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _acceptInvite(invites[index]);
+                                            });
+                                          },
+                                          child: Text("Accept")
+                                      ),
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _declineInvite(invites[index]);
+                                            });
+                                          },
+                                          child: Text("Decline")
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    );
+                          );
+                        },
+                      );
                   } else { // Problem loading data
                     return const Text("Error loading data");
                   }

@@ -115,7 +115,8 @@ class QuestionnaireForm extends StatelessWidget {
                         onError: (e) => print("Error getting document: $e"),
                       );
 
-                      goToPage(context, SelfDesign());
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
                   },
                   child: Text('Submit'),
                 ),

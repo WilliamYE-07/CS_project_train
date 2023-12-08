@@ -17,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeState extends State<HomeScreen> {
-  Widget makeLargeButton(String label, String imageURL, Function() onTap) {
+  Widget makeLargeButton(String label, Function() onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -51,12 +51,6 @@ class _HomeState extends State<HomeScreen> {
         actions: [
           IconButton(
               onPressed: () {
-                goToPage(context, PersonalInfoSelection());
-              },
-              icon: const Icon(Icons.person)
-          ),
-          IconButton(
-              onPressed: () {
                 goToPage(context, Settings());
               },
               icon: const Icon(Icons.settings)
@@ -73,22 +67,25 @@ class _HomeState extends State<HomeScreen> {
       body: ListView(
         children: [
           makeLargeButton(
+              "Survey",
+                  () {
+                goToPage(context, PersonalInfoSelection());
+              }
+          ),
+          makeLargeButton(
             "Train",
-            "https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg",
             () {
               goToPage(context, SelectTrain());
             }
           ),
           makeLargeButton(
               "Self Design",
-              "https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg",
                 () {
                 goToPage(context, SelfDesign());
               }
           ),
           makeLargeButton(
               "Chat Rooms",
-              "https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg",
                 () {
                 goToPage(context, ChatSelector());
               }
